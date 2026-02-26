@@ -675,16 +675,17 @@
 
 /* Revenue total */
 .revTotal {
-  margin-top: auto;
+  margin-top: 6px;
   padding-top: 8px;
   border-top: 2px solid var(--border);
 }
 .revTotalSeats {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-muted);
-  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 6px;
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.3px;
 }
 .revTotalLabel {
   font-size: 8px;
