@@ -17,7 +17,7 @@ export default function CustomerCoverSlide() {
   const custLogo = selectedCustomer ? (localLogos[selectedCustomer.name] || selectedCustomer.logo) : null
 
   return (
-    <Slide index={10} className={styles.cover}>
+    <Slide index={11} className={styles.cover}>
       {/* Accent bar */}
       <div className="accent-bar" />
 

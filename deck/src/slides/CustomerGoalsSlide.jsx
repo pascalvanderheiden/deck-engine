@@ -38,7 +38,7 @@ const goals = [
 
 export default function CustomerGoalsSlide() {
   return (
-    <Slide index={12} className={styles.goals}>
+    <Slide index={13} className={styles.goals}>
       <div className="accent-bar" />
       {/* Decorative orbs */}
       <div className={`orb ${styles.orb1}`} />

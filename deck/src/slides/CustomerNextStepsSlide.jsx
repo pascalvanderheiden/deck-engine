@@ -11,7 +11,7 @@ const steps = [
 
 export default function CustomerNextStepsSlide() {
   return (
-    <Slide index={16} className={styles.nextSteps}>
+    <Slide index={17} className={styles.nextSteps}>
       <div className="accent-bar" />
       {/* Decorative orbs */}
       <div className={`orb ${styles.orb1}`} />

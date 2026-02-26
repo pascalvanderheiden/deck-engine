@@ -35,7 +35,7 @@ function SpeakerCard({ speaker }) {
   )
 }
 
-export default function PresentersSlide({ index = 6 }) {
+export default function PresentersSlide({ index = 7 }) {
   return (
     <Slide index={index} className={styles.presenters}>
       <div className="accent-bar" />

@@ -2,7 +2,7 @@ import Slide from '../components/Slide'
 import BottomBar from '../components/BottomBar'
 import styles from './ApproachSlide.module.css'
 
-export default function ApproachSlide({ index = 5 }) {
+export default function ApproachSlide({ index = 6 }) {
   return (
     <Slide index={index} className={styles.approach}>
       <div className="accent-bar" />

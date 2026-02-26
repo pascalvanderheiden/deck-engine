@@ -4,7 +4,7 @@ import styles from './CustomerIntroSlide.module.css'
 
 export default function CustomerIntroSlide() {
   return (
-    <Slide index={11} className={styles.intro}>
+    <Slide index={12} className={styles.intro}>
       <div className="accent-bar" />
       {/* Decorative orbs */}
       <div className={`orb ${styles.orb1}`} />

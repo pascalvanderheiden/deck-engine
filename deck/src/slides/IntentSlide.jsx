@@ -4,7 +4,7 @@ import styles from './IntentSlide.module.css'
 
 export default function IntentSlide() {
   return (
-    <Slide index={4} className={styles.intent}>
+    <Slide index={5} className={styles.intent}>
       <div className="accent-bar" />
 
       <div className="content-frame content-gutter">

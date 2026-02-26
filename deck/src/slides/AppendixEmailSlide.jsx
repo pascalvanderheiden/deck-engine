@@ -68,7 +68,7 @@ export default function AppendixEmailSlide() {
   }
 
   return (
-    <Slide index={18} className={styles.slide}>
+    <Slide index={19} className={styles.slide}>
       <div className="accent-bar" />
 
       <div className={`orb ${styles.orb1}`} />

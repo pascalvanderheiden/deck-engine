@@ -3,6 +3,7 @@ import Navigation from './components/Navigation'
 import CoverSlide from './slides/CoverSlide'
 import AgendaSlide from './slides/AgendaSlide'
 import OpportunitySlide from './slides/OpportunitySlide'
+import OpportunitySlideV2 from './slides/OpportunitySlideV2'
 import IntentSlide from './slides/IntentSlide'
 import ApproachSlide from './slides/ApproachSlide'
 import PresentersSlide from './slides/PresentersSlide'
@@ -17,7 +18,7 @@ import SelectorSlide from './slides/SelectorSlide'
 import AppendixEmailSlide from './slides/AppendixEmailSlide'
 import SpeakerInviteSlide from './slides/SpeakerInviteSlide'
 
-const TOTAL = 19
+const TOTAL = 20
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
         <CoverSlide />
         <AgendaSlide />
         <OpportunitySlide />
+        <OpportunitySlideV2 />
         <IntentSlide />
         <ApproachSlide />
         <PresentersSlide />
@@ -37,11 +39,11 @@ export default function App() {
         <CustomerCoverSlide />
         <CustomerIntroSlide />
         <CustomerGoalsSlide />
-        <ApproachSlide index={13} />
-        <PresentersSlide index={14} />
+        <ApproachSlide index={14} />
+        <PresentersSlide index={15} />
         <CustomerCommitmentSlide />
         <CustomerNextStepsSlide />
-        <ThankYouSlide index={17} />
+        <ThankYouSlide index={18} />
         <AppendixEmailSlide />
       </div>
     </SlideProvider>

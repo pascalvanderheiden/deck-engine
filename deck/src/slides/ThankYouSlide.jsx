@@ -2,7 +2,7 @@ import Slide from '../components/Slide'
 import BottomBar from '../components/BottomBar'
 import styles from './ThankYouSlide.module.css'
 
-export default function ThankYouSlide({ index = 8 }) {
+export default function ThankYouSlide({ index = 9 }) {
   return (
     <Slide index={index} className={styles.thankYou}>
       <div className="accent-bar" />

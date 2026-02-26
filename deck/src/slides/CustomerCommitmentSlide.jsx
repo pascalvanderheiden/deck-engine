@@ -17,7 +17,7 @@ const customerCommits = [
 
 export default function CustomerCommitmentSlide() {
   return (
-    <Slide index={15} className={styles.commitment}>
+    <Slide index={16} className={styles.commitment}>
       <div className="accent-bar" />
       {/* Decorative orbs */}
       <div className={`orb ${styles.orb1}`} />
