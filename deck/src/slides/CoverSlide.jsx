@@ -8,6 +8,7 @@ import logoASML from '../data/logos/asml.png'
 import logoPhilips from '../data/logos/philips.png'
 import logoShell from '../data/logos/shell.png'
 import logoAhold from '../data/logos/ahold.png'
+import logoABNAmro from '../data/logos/abnamro.png'
 import logoRabobank from '../data/logos/rabobank.svg'
 
 const localLogos = {
@@ -16,6 +17,7 @@ const localLogos = {
   Philips: logoPhilips,
   Shell: logoShell,
   Ahold: logoAhold,
+  'ABN Amro': logoABNAmro,
   Rabobank: logoRabobank,
 }
 
