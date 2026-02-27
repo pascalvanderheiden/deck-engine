@@ -5,12 +5,12 @@
 window.DASHBOARD_DATA = [
   {
     "name": "ING",
-    "ghe": 12000,
-    "ghcp": 7200,
-    "acr": 136800,
-    "pen": 60,
-    "at75": 171000,
-    "at90": 205200,
+    "ghe": 15000,
+    "ghcp": 6000,
+    "acr": 114000,
+    "pen": 40,
+    "at75": 213750,
+    "at90": 256500,
     "color": "#58a6ff",
     "logo": "https://logo.clearbit.com/ing.com"
   },
@@ -71,14 +71,14 @@ window.DASHBOARD_DATA = [
   }
 ];
 window.DASHBOARD_KPIS = {
-  "totalGHE": 48457,
-  "totalGHCP": 25842,
-  "avgPen": 53,
-  "totalACR": 490998,
-  "total75": 690517,
-  "total90": 828609,
-  "gapTo75": 199519,
-  "expansionPct": 69
+  "totalGHE": 51457,
+  "totalGHCP": 24642,
+  "avgPen": 48,
+  "totalACR": 468198,
+  "total75": 733267,
+  "total90": 879909,
+  "gapTo75": 265069,
+  "expansionPct": 88
 };
 window.PRICE_BUSINESS = 19;
 window.DISCOUNT = 0;

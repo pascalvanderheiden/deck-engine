@@ -2,8 +2,10 @@ import { useSlides } from '../context/SlideContext'
 import styles from './Navigation.module.css'
 import { useState, useEffect } from 'react'
 
+const INTERNAL_PDF_URL = 'https://microsofteur-my.sharepoint.com/:b:/g/personal/leandrolopez_microsoft_com/IQDpJ-b0ZYXmS70YsLX0czeEAa0f7IrsLhRQ_gvF8NxLlsA?e=crsrXJ'
+
 export default function Navigation() {
-  const { current, totalSlides, go, goTo } = useSlides()
+  const { current, totalSlides, go, goTo, selectedCustomer } = useSlides()
   const [hintVisible, setHintVisible] = useState(true)
 
   useEffect(() => {
@@ -12,6 +14,23 @@ export default function Navigation() {
   }, [])
 
   const progress = ((current + 1) / totalSlides) * 100
+
+  // Determine which deck we're in
+  const isInternal = current >= 1 && current <= 9
+  const isCustomer = current >= 11 && current <= 18
+  const showPdfLink = isInternal || isCustomer
+
+  const pdfUrl = isInternal
+    ? INTERNAL_PDF_URL
+    : selectedCustomer
+      ? `/exports/${selectedCustomer.name.toLowerCase()}-slides.pdf`
+      : null
+
+  const pdfLabel = isInternal
+    ? 'Internal deck PDF'
+    : selectedCustomer
+      ? `${selectedCustomer.name} deck PDF`
+      : 'Deck PDF'
 
   return (
     <>
@@ -32,6 +51,26 @@ export default function Navigation() {
             <path d="M9 21V9h6v12" />
           </svg>
         </button>
+      )}
+
+      {/* PDF link button */}
+      {showPdfLink && pdfUrl && (
+        <a
+          className={styles.exportBtn}
+          href={pdfUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          title={pdfLabel}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+            <polyline points="10 9 9 9 8 9" />
+          </svg>
+          <span className={styles.exportLabel}>PDF</span>
+        </a>
       )}
 
       {/* Nav buttons */}

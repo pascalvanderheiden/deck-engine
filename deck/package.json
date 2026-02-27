@@ -12,8 +12,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "export:pdf": "node scripts/export-pdf.mjs",
-    "export:internal": "node scripts/export-pdf.mjs --internal --from 2 --to 9",
-    "export:customer": "node scripts/export-pdf.mjs --customer --from 11 --to 18"
+    "export:internal": "node scripts/export-pdf.mjs --internal --from 2 --to 10",
+    "export:customer": "node scripts/export-pdf.mjs --customer --from 12 --to 19"
   },
   "dependencies": {
     "react": "^19.1.0",
