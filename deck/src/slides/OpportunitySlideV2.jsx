@@ -56,13 +56,15 @@ function calcRevenue(c, pen, pru, disc) {
   const seats = Math.round(c.ghe * pen)
   const isEnt = pru >= PRU_ENT
   const planPrice = isEnt ? applyDiscount(PRICE_ENTERPRISE, disc) : applyDiscount(PRICE_BUSINESS, disc)
+  const overageRate = PRU_OVERAGE_RATE * (1 - disc)
   const allowance = isEnt ? PRU_ENT : PRU_BIZ
   const overagePru = Math.max(0, pru - allowance)
-  const overagePerSeat = overagePru * PRU_OVERAGE_RATE
+  const overagePerSeat = overagePru * overageRate
   return {
     seats,
     plan: isEnt ? 'Enterprise' : 'Business',
     planPrice,
+    overageRate,
     allowance,
     overagePru,
     overagePerSeat,
@@ -266,7 +268,7 @@ export default function OpportunitySlideV2({ index = 4 }) {
               {/* Overage zone */}
               <div className={styles.overageZone} style={{ height: `${valToY(PRU_ENT)}%` }} />
               <div className={styles.overageLabel} style={{ top: `${valToY(PRU_MAX - 80)}%` }}>
-                Overage zone · ${PRU_OVERAGE_RATE}/PRU
+                Overage zone · ${(PRU_OVERAGE_RATE * (1 - totalDiscount)).toFixed(2)}/PRU
               </div>
 
               {/* Allowance lines */}
@@ -441,7 +443,7 @@ export default function OpportunitySlideV2({ index = 4 }) {
                         <span className={styles.revPlan}>{c.current.plan} ${c.current.planPrice}/mo</span>
                         {c.current.overagePru > 0 && (
                           <span className={styles.revOverage}>
-                            +{Math.round(c.current.overagePru)} PRU × ${PRU_OVERAGE_RATE}
+                            +{Math.round(c.current.overagePru)} PRU × ${c.current.overageRate.toFixed(2)}
                           </span>
                         )}
                         {c.current.plan === 'Business' && c.pru >= PRU_BREAKEVEN && (

@@ -362,16 +362,42 @@
 
 <script src="opportunity-data.js"></script>
 <script>
-// ── Data — loaded from opportunity-data.js (generated from src/data/opportunity.js) ──
-const data = window.DASHBOARD_DATA;
-const kpis = window.DASHBOARD_KPIS;
+// ── Read discount from URL query param ──
+const urlDiscount = parseFloat(new URLSearchParams(window.location.search).get('discount')) || 0;
+const discountMul = 1 - urlDiscount;
+
+// ── Data — loaded from opportunity-data.js, adjusted for discount ──
+const rawData = window.DASHBOARD_DATA;
+const rawKpis = window.DASHBOARD_KPIS;
+
+// Re-derive ACR and target values with discount applied
+const data = rawData.map(d => ({
+  ...d,
+  acr: Math.round(d.ghcp * 19 * discountMul),
+  at75: Math.round(d.ghe * 0.75) * 19 * discountMul,
+  at90: Math.round(d.ghe * 0.90) * 19 * discountMul,
+}));
+
+const totalACR = data.reduce((s,d) => s + d.acr, 0);
+const total75 = data.reduce((s,d) => s + d.at75, 0);
+const total90 = data.reduce((s,d) => s + d.at90, 0);
+
+const kpis = {
+  ...rawKpis,
+  totalACR: Math.round(totalACR),
+  total75: Math.round(total75),
+  total90: Math.round(total90),
+  gapTo75: Math.round(total75 - totalACR),
+  expansionPct: Math.round(((total90 / totalACR) - 1) * 100),
+};
 
 const fmt = v => '$' + (v/1000).toFixed(1) + 'K';
 const fmtFull = v => '$' + v.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0});
 
 // ── Update header with customer count ──
 document.querySelector('.header h1').innerHTML =
-  'GitHub <span>Copilot</span> — Pilot Opportunity · ' + data.length + ' Strategic Customers';
+  'GitHub <span>Copilot</span> — Pilot Opportunity · ' + data.length + ' Strategic Customers' +
+  (urlDiscount > 0 ? ' · <span style="color:#3fb950">' + Math.round(urlDiscount * 100) + '% ACD</span>' : '');
 
 // ── 0. KPI Strip (from data) ──
 (function() {
@@ -492,10 +518,6 @@ new ApexCharts(document.querySelector('#chart-penetration'), {
   });
 })();
 
-const totalActual = data.reduce((s,d) => s + d.acr, 0);
-const total75 = data.reduce((s,d) => s + d.at75, 0);
-const total90 = data.reduce((s,d) => s + d.at90, 0);
-
 // ── 4. Table ──
 (function() {
   const tbody = document.getElementById('table-body');
@@ -528,7 +550,7 @@ const total90 = data.reduce((s,d) => s + d.at90, 0);
     <td style="font-weight:700">TOTAL</td>
     <td>${data.reduce((s,d) => s + d.ghe, 0).toLocaleString()}</td>
     <td>${data.reduce((s,d) => s + d.ghcp, 0).toLocaleString()}</td>
-    <td>${fmtFull(totalActual)}</td>
+    <td>${fmtFull(totalACR)}</td>
     <td><span class="badge badge-orange">${avgPen}% avg</span></td>
     <td style="color:#3fb950">${fmtFull(Math.round(total75))}</td>
     <td style="color:#bc8cff">${fmtFull(Math.round(total90))}</td>`;

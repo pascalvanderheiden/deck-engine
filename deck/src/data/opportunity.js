@@ -102,19 +102,20 @@ export const revenueMultiplier = yrStretch / yrBase
 export function computeScenarios(disc) {
   const bp = PRICE_BUSINESS * (1 - disc)
   const ep = PRICE_ENTERPRISE * (1 - disc)
+  const or = PRU_OVERAGE_RATE * (1 - disc)
   const ts = targetSeats
   const tc = totalGHCP
 
   const _moBase         = tc * bp
   const _moBase80       = ts * bp
-  const _moConservative = _moBase80 + ts * PRU_OVERAGE_BIZ_PCT * PRU_OVERAGE_BIZ_EXTRA * PRU_OVERAGE_RATE
+  const _moConservative = _moBase80 + ts * PRU_OVERAGE_BIZ_PCT * PRU_OVERAGE_BIZ_EXTRA * or
   const _moBestCase     = ts * ep
-  const _moStretch      = _moBestCase + ts * PRU_OVERAGE_ENT_PCT * PRU_OVERAGE_ENT_EXTRA * PRU_OVERAGE_RATE
+  const _moStretch      = _moBestCase + ts * PRU_OVERAGE_ENT_PCT * PRU_OVERAGE_ENT_EXTRA * or
 
   const _moBaseCurrent     = tc * bp
-  const _moConservativeCur = tc * bp + tc * PRU_OVERAGE_BIZ_PCT * PRU_OVERAGE_BIZ_EXTRA * PRU_OVERAGE_RATE
+  const _moConservativeCur = tc * bp + tc * PRU_OVERAGE_BIZ_PCT * PRU_OVERAGE_BIZ_EXTRA * or
   const _moBestCaseCur     = tc * ep
-  const _moStretchCur      = _moBestCaseCur + tc * PRU_OVERAGE_ENT_PCT * PRU_OVERAGE_ENT_EXTRA * PRU_OVERAGE_RATE
+  const _moStretchCur      = _moBestCaseCur + tc * PRU_OVERAGE_ENT_PCT * PRU_OVERAGE_ENT_EXTRA * or
 
   const _yrBase         = _moBase * 12
   const _yrBase80       = _moBase80 * 12
@@ -122,7 +123,7 @@ export function computeScenarios(disc) {
   const _yrBestCase     = _moBestCase * 12
   const _yrStretch      = _moStretch * 12
 
-  const _pruOverageYr80  = ts * PRU_OVERAGE_BIZ_PCT * PRU_OVERAGE_BIZ_EXTRA * PRU_OVERAGE_RATE * 12
+  const _pruOverageYr80  = ts * PRU_OVERAGE_BIZ_PCT * PRU_OVERAGE_BIZ_EXTRA * or * 12
   const _entUpgradeYr80  = (ts * ep - ts * bp) * 12
 
   return {

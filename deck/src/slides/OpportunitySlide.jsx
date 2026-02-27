@@ -33,6 +33,7 @@ export default function OpportunitySlide() {
   const s = useMemo(() => computeScenarios(totalDiscount), [totalDiscount])
   const bizPrice = PRICE_BUSINESS * (1 - totalDiscount)
   const entPrice = PRICE_ENTERPRISE * (1 - totalDiscount)
+  const pruRate = PRU_OVERAGE_RATE * (1 - totalDiscount)
 
   const discountLabel = totalDiscount > 0 ? ` (${Math.round(totalDiscount * 100)}% discount applied${acdEnabled ? ' incl. ACD' : ''})` : ''
 
@@ -70,7 +71,7 @@ export default function OpportunitySlide() {
       {active === 'horizontal' && (
         <div className={`${styles.horizontalPanel} content-frame content-gutter`}>
           <div className={styles.iframeWrap}>
-            <iframe src="/ghcp-opportunity.html" loading="eager" title="Opportunity Dashboard" />
+            <iframe src={`/ghcp-opportunity.html${totalDiscount > 0 ? `?discount=${totalDiscount}` : ''}`} loading="eager" title="Opportunity Dashboard" />
           </div>
         </div>
       )}
@@ -111,7 +112,7 @@ export default function OpportunitySlide() {
             <div className={`${styles.planCard} ${styles.planPayg}`}>
               <div className={styles.planBadge}>Either plan</div>
               <h4>Pay-as-you-go PRUs</h4>
-              <div className={styles.planPrice}><span>${PRU_OVERAGE_RATE}</span>/PRU overage</div>
+              <div className={styles.planPrice}><span>${pruRate.toFixed(2)}</span>/PRU overage</div>
               <ul>
                 <li>After {PRU_BIZ} (Biz) or {PRU_ENT.toLocaleString()} (Ent) allowance</li>
                 <li>Agent mode, multi-model, MCP</li>
@@ -282,7 +283,7 @@ export default function OpportunitySlide() {
                   <td>
                     <span className={styles.dot} style={{background: 'var(--orange)'}} />
                     ↕ Vertical — PRU Overage
-                    <span className={styles.assumption}>${PRU_OVERAGE_RATE}/PRU beyond allowance</span>
+                    <span className={styles.assumption}>${pruRate.toFixed(2)}/PRU beyond allowance</span>
                   </td>
                   <td className={styles.muted}>—</td>
                   <td className={styles.up}>+{fmtM(s.pruOverageYr80)}</td>
