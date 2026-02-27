@@ -143,14 +143,14 @@ export default function OpportunitySlide() {
                   <th>Scenario</th>
                   <th>Current seats ({seatsK(totalGHCP)})</th>
                   <th>@ {tgtPctLabel} target ({seatsK(targetSeats)})</th>
-                  <th>Uplift vs baseline</th>
+                  <th>Uplift vs today</th>
                 </tr>
               </thead>
               <tbody>
                 <tr className={styles.rowBase}>
                   <td>
                     <span className={styles.dot} style={{background: 'var(--accent)'}} />
-                    Baseline — all Business
+                    @ Target — all Business
                   </td>
                   <td>{fmtK(s.moBaseCurrent)} <span>/mo</span></td>
                   <td>{fmtK(s.moBase80)} <span>/mo</span></td>
@@ -192,7 +192,7 @@ export default function OpportunitySlide() {
           {/* ── Visual bar ── */}
           <div className={styles.barSection}>
             <div className={styles.barRow}>
-              <span className={styles.barLabel}>Baseline</span>
+              <span className={styles.barLabel}>@ Target</span>
               <div className={styles.barTrack}>
                 <div className={styles.barFill} style={{width: barPct(s.yrBase80, s.yrStretch), background: 'var(--accent)'}} />
               </div>
@@ -277,7 +277,7 @@ export default function OpportunitySlide() {
                   <th>Seats</th>
                   <th>Pen.</th>
                   <th>Current</th>
-                  <th>Baseline</th>
+                  <th>@ Target</th>
                   <th>Conservative</th>
                   <th>Best Case</th>
                   <th>Stretch</th>
