@@ -21,8 +21,8 @@ const tabs = [
 ]
 
 const arpuMultiplier = (PRICE_ENTERPRISE / PRICE_BUSINESS).toFixed(0)
-const discountLabel = DISCOUNT > 0 ? ` (${Math.round(DISCOUNT * 100)}% discount applied)` : ''
 const seatsK = (v) => (v / 1000).toFixed(0) + 'K'
+const fmtPrice = v => v % 1 === 0 ? v.toFixed(0) : v.toFixed(2)
 const tgtPctLabel = Math.round(TARGET_PENETRATION * 100) + '%'
 
 export default function OpportunitySlide() {
@@ -31,6 +31,8 @@ export default function OpportunitySlide() {
 
   const totalDiscount = DISCOUNT + (acdEnabled ? ACD_RATE : 0)
   const s = useMemo(() => computeScenarios(totalDiscount), [totalDiscount])
+  const bizPrice = PRICE_BUSINESS * (1 - totalDiscount)
+  const entPrice = PRICE_ENTERPRISE * (1 - totalDiscount)
 
   const discountLabel = totalDiscount > 0 ? ` (${Math.round(totalDiscount * 100)}% discount applied${acdEnabled ? ' incl. ACD' : ''})` : ''
 
@@ -41,7 +43,6 @@ export default function OpportunitySlide() {
       <div className={`${styles.topRow} content-frame content-gutter`}>
         <div className={styles.header}>
           <h2>Pilot Opportunity <span className={styles.dim}>&mdash; {customers.length} Strategic Customers</span></h2>
-          <div className={styles.tag}>Live Dashboard</div>
           <button
             className={`${styles.acdToggle} ${acdEnabled ? styles.acdActive : ''}`}
             onClick={(e) => { e.stopPropagation(); setAcdEnabled(v => !v) }}
@@ -77,7 +78,7 @@ export default function OpportunitySlide() {
       {active === 'vertical' && (
         <div className={`${styles.vertical} content-frame content-gutter`}>
           <p className={styles.vertDesc}>
-            Beyond seat growth — increasing ARPU from <strong>${PRICE_BUSINESS}</strong> to <strong>${PRICE_ENTERPRISE}</strong>/dev/mo
+            Beyond seat growth — increasing ARPU from <strong>${fmtPrice(bizPrice)}</strong> to <strong>${fmtPrice(entPrice)}</strong>/dev/mo
             via plan upgrades and Premium Request Unit (PRU) overage consumption.{discountLabel}
           </p>
 
@@ -86,7 +87,7 @@ export default function OpportunitySlide() {
             <div className={`${styles.planCard} ${styles.planBiz}`}>
               <div className={styles.planBadge}>Current</div>
               <h4>Copilot for Business</h4>
-              <div className={styles.planPrice}><span>${PRICE_BUSINESS}</span>/dev/mo</div>
+              <div className={styles.planPrice}><span>${fmtPrice(bizPrice)}</span>/dev/mo</div>
               <ul>
                 <li><strong>{PRU_BIZ.toLocaleString()}</strong> PRUs / month included</li>
                 <li>IDE code completions &amp; chat</li>
@@ -100,7 +101,7 @@ export default function OpportunitySlide() {
             <div className={`${styles.planCard} ${styles.planEnt}`}>
               <div className={styles.planBadge}>Target</div>
               <h4>Copilot Enterprise</h4>
-              <div className={styles.planPrice}><span>${PRICE_ENTERPRISE}</span>/dev/mo</div>
+              <div className={styles.planPrice}><span>${fmtPrice(entPrice)}</span>/dev/mo</div>
               <ul>
                 <li><strong>{PRU_ENT.toLocaleString()}</strong> PRUs / month included</li>
                 <li>Knowledge bases &amp; org context</li>
@@ -221,22 +222,22 @@ export default function OpportunitySlide() {
             <div className={styles.totalKpi}>
               <div className={styles.totalKpiLabel}>Current State</div>
               <div className={styles.totalKpiVal}>{fmtM(s.yrBase)}<span>/yr</span></div>
-              <div className={styles.totalKpiSub}>{seatsK(totalGHCP)} seats × ${PRICE_BUSINESS} (Business)</div>
+              <div className={styles.totalKpiSub}>{seatsK(totalGHCP)} seats × ${fmtPrice(bizPrice)} (Business)</div>
             </div>
             <div className={`${styles.totalKpi} ${styles.totalKpiWarn}`}>
               <div className={styles.totalKpiLabel}>Conservative</div>
               <div className={styles.totalKpiVal}>{fmtM(s.yrConservative)}<span>/yr</span></div>
-              <div className={styles.totalKpiSub}>{seatsK(targetSeats)} seats × ${PRICE_BUSINESS} + PRU overage</div>
+              <div className={styles.totalKpiSub}>{seatsK(targetSeats)} seats × ${fmtPrice(bizPrice)} + PRU overage</div>
             </div>
             <div className={`${styles.totalKpi} ${styles.totalKpiBest}`}>
               <div className={styles.totalKpiLabel}>Best Case</div>
               <div className={styles.totalKpiVal}>{fmtM(s.yrBestCase)}<span>/yr</span></div>
-              <div className={styles.totalKpiSub}>{seatsK(targetSeats)} seats × ${PRICE_ENTERPRISE} (Enterprise)</div>
+              <div className={styles.totalKpiSub}>{seatsK(targetSeats)} seats × ${fmtPrice(entPrice)} (Enterprise)</div>
             </div>
             <div className={`${styles.totalKpi} ${styles.totalKpiStretch}`}>
               <div className={styles.totalKpiLabel}>Stretch</div>
               <div className={styles.totalKpiVal}>{fmtM(s.yrStretch)}<span>/yr</span></div>
-              <div className={styles.totalKpiSub}>{seatsK(targetSeats)} seats × ${PRICE_ENTERPRISE} + PRU overage</div>
+              <div className={styles.totalKpiSub}>{seatsK(targetSeats)} seats × ${fmtPrice(entPrice)} + PRU overage</div>
             </div>
           </div>
 
@@ -270,7 +271,7 @@ export default function OpportunitySlide() {
                   <td>
                     <span className={styles.dot} style={{background: 'var(--green)'}} />
                     ↕ Vertical — Plan Upgrade
-                    <span className={styles.assumption}>${PRICE_BUSINESS} → ${PRICE_ENTERPRISE} per seat</span>
+                    <span className={styles.assumption}>${fmtPrice(bizPrice)} → ${fmtPrice(entPrice)} per seat</span>
                   </td>
                   <td className={styles.muted}>—</td>
                   <td className={styles.muted}>—</td>
