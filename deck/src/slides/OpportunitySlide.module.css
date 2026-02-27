@@ -342,6 +342,24 @@
   color: var(--accent) !important;
 }
 
+.groupRow th {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  padding: 4px 10px 2px !important;
+  border-bottom: none !important;
+}
+.groupHoriz {
+  color: var(--accent) !important;
+}
+.groupVert {
+  color: var(--green) !important;
+  text-align: center !important;
+  border-left: 1px solid rgba(88,166,255,0.12);
+}
+
 .customerTable th,
 .customerTable td {
   padding: 8px 10px;

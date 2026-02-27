@@ -272,12 +272,18 @@ export default function OpportunitySlide() {
             </div>
             <table className={`${styles.impactTable} ${styles.customerTable}`}>
               <thead>
+                <tr className={styles.groupRow}>
+                  <th colSpan="3"></th>
+                  <th>Today</th>
+                  <th className={styles.groupHoriz}>↔ Horizontal</th>
+                  <th colSpan="3" className={styles.groupVert}>↔ + ↕ Vertical Expansion</th>
+                </tr>
                 <tr>
                   <th>Customer</th>
                   <th>Seats</th>
                   <th>Pen.</th>
-                  <th>Current</th>
-                  <th>@ Target</th>
+                  <th>Actuals (Jan)</th>
+                  <th>@ {tgtPctLabel} Pen.</th>
                   <th>Conservative</th>
                   <th>Best Case</th>
                   <th>Stretch</th>
