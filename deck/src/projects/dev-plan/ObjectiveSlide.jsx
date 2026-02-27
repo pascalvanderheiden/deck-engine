@@ -9,9 +9,8 @@ const pillars = [
     accent: 'var(--purple)',
     items: [
       { text: 'Learn the soft skills needed to be a Solution Engineer', highlight: true },
-      { text: 'Reverse-shadow & shadow experienced SEs' },
-      { text: 'Simulation exercises with real scenarios' },
-      { text: 'Real customer work with guided support' },
+      { text: 'Reverse-shadow experienced SEs → simulation exercises' },
+      { text: 'Shadow experienced SEs → real customer work' },
     ],
   },
   {
