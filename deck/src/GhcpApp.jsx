@@ -5,6 +5,7 @@ import AgendaSlide from './slides/AgendaSlide'
 import OpportunitySlide from './slides/OpportunitySlide'
 import OpportunitySlideV2 from './slides/OpportunitySlideV2'
 import IntentSlide from './slides/IntentSlide'
+import ScopeSlide from './slides/ScopeSlide'
 import ApproachSlide from './slides/ApproachSlide'
 import PresentersSlide from './slides/PresentersSlide'
 import GovernanceSlide from './slides/GovernanceSlide'
@@ -18,7 +19,7 @@ import SelectorSlide from './slides/SelectorSlide'
 import AppendixEmailSlide from './slides/AppendixEmailSlide'
 import SpeakerInviteSlide from './slides/SpeakerInviteSlide'
 
-const TOTAL = 20
+const TOTAL = 21
 
 export default function GhcpApp() {
   return (
@@ -31,6 +32,7 @@ export default function GhcpApp() {
         <OpportunitySlide />
         <OpportunitySlideV2 />
         <IntentSlide />
+        <ScopeSlide />
         <ApproachSlide />
         <PresentersSlide />
         <GovernanceSlide />
@@ -39,11 +41,11 @@ export default function GhcpApp() {
         <CustomerCoverSlide />
         <CustomerIntroSlide />
         <CustomerGoalsSlide />
-        <ApproachSlide index={14} />
-        <PresentersSlide index={15} />
+        <ApproachSlide index={15} />
+        <PresentersSlide index={16} />
         <CustomerCommitmentSlide />
         <CustomerNextStepsSlide />
-        <ThankYouSlide index={18} />
+        <ThankYouSlide index={19} />
         <AppendixEmailSlide />
       </div>
     </SlideProvider>

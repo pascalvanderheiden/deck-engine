@@ -35,7 +35,7 @@ function SpeakerCard({ speaker }) {
   )
 }
 
-export default function PresentersSlide({ index = 7 }) {
+export default function PresentersSlide({ index = 8 }) {
   return (
     <Slide index={index} className={styles.presenters}>
       <div className="accent-bar" />
@@ -53,6 +53,7 @@ export default function PresentersSlide({ index = 7 }) {
             <strong>These are not typical presenters.</strong> They already live in the AI-first coding world your teams are moving toward.
             Every speaker was chosen because they are <em>ahead of the curve</em>&nbsp;&mdash; building, shipping, and scaling with Copilot daily.
             Their job on this stage: make that future feel <em>achievable</em> for your engineers, starting today.
+            This is our initial lineup. Over time we're adding new speakers bringing fresh insights and innovative ways of working with AI.
           </div>
         </div>
 

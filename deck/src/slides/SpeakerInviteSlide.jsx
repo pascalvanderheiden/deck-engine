@@ -71,7 +71,7 @@ export default function SpeakerInviteSlide() {
   }
 
   return (
-    <Slide index={10} className={styles.slide}>
+    <Slide index={11} className={styles.slide}>
       <div className="accent-bar" />
 
       <div className={`orb ${styles.orb1}`} />

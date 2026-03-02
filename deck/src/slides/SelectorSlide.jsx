@@ -20,7 +20,7 @@ export default function SelectorSlide() {
   const handlePickCustomer = (c) => {
     setSelectedCustomer(c)
     setPicking(false)
-    goTo(11)
+    goTo(12)
   }
 
   return (

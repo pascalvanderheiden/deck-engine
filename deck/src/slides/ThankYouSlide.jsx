@@ -2,7 +2,7 @@ import Slide from '../components/Slide'
 import BottomBar from '../components/BottomBar'
 import styles from './ThankYouSlide.module.css'
 
-export default function ThankYouSlide({ index = 9 }) {
+export default function ThankYouSlide({ index = 10 }) {
   return (
     <Slide index={index} className={styles.thankYou}>
       <div className="accent-bar" />
@@ -39,7 +39,7 @@ export default function ThankYouSlide({ index = 9 }) {
         {/* Content */}
         <div className={styles.content}>
           <h2 className={styles.title}>Thank You</h2>
-          <p className={styles.subtitle}>Let&rsquo;s accelerate AI adoption &mdash; together.</p>
+          <p className={styles.subtitle}>Let&rsquo;s accelerate AI impact &mdash; together.</p>
           <div className={styles.divider} />
           <p className={styles.tagline}>GitHub Copilot &bull; AI Activation Series 2025</p>
         </div>

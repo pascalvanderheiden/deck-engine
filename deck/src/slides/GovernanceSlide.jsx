@@ -40,7 +40,7 @@ const team = [
 
 export default function GovernanceSlide() {
   return (
-    <Slide index={8} className={styles.governance}>
+    <Slide index={9} className={styles.governance}>
       <div className="accent-bar" />
       <div className="grid-dots" style={{ right: 40, top: 100 }} />
 

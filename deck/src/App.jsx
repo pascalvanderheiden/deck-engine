@@ -26,7 +26,14 @@ export default function App() {
 
   useEffect(() => {
     if (FIXED_PROJECT) return // no hash navigation in fixed-project mode
-    const onHash = () => setRoute(getRoute())
+    const onHash = () => {
+      const next = getRoute()
+      // Reset stored slide so projects always start at slide 0
+      if (next) {
+        try { sessionStorage.removeItem(`slide:${next}`) } catch {}
+      }
+      setRoute(next)
+    }
     window.addEventListener('hashchange', onHash)
     return () => window.removeEventListener('hashchange', onHash)
   }, [])

@@ -2,7 +2,7 @@ import Slide from '../components/Slide'
 import BottomBar from '../components/BottomBar'
 import styles from './ApproachSlide.module.css'
 
-export default function ApproachSlide({ index = 6 }) {
+export default function ApproachSlide({ index = 7 }) {
   return (
     <Slide index={index} className={styles.approach}>
       <div className="accent-bar" />
@@ -11,7 +11,7 @@ export default function ApproachSlide({ index = 6 }) {
         <div className={styles.header}>
           <h2>Approach</h2>
           <p className={styles.subtitle}>
-            Bi-weekly, demo-first expert series — <strong>MSFT + GitHub deliver content</strong>, customers drive internal engagement.
+            Bi-weekly, demo-first expert series — <strong>Microsoft + GitHub deliver content</strong>, customers drive internal engagement.
           </p>
         </div>
 
@@ -41,7 +41,7 @@ export default function ApproachSlide({ index = 6 }) {
               </div>
               <ul className={styles.bulletList}>
                 <li>Specific topic + live demo each session — <strong>no slide decks</strong></li>
-                <li>Customer manages audience &amp; promotion; <strong>MS/GH provide speakers &amp; content</strong></li>
+                <li>Customer manages audience &amp; promotion; <strong>Microsoft &amp; GitHub provide speakers &amp; content</strong></li>
                 <li>Rotating speakers: GitHub SEs/CSAs, Microsoft GBBs, Dev Advocates</li>
               </ul>
             </div>
@@ -113,7 +113,7 @@ export default function ApproachSlide({ index = 6 }) {
               </div>
 
               <div className={styles.agendaFooter}>
-                <span className={styles.agendaKey}><span style={{background: 'var(--accent)'}} /> GitHub / MS</span>
+                <span className={styles.agendaKey}><span style={{background: 'var(--accent)'}} /> GitHub / Microsoft</span>
                 <span className={styles.agendaKey}><span style={{background: 'var(--purple)'}} /> Joint</span>
                 <span className={styles.agendaKey}><span style={{background: 'var(--green)'}} /> Customer-led</span>
               </div>

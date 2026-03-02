@@ -4,14 +4,14 @@ import styles from './CustomerNextStepsSlide.module.css'
 
 const steps = [
   'Commit to the Adoption Series',
-  'Nominate sponsors & moderators',
+  'Nominate sponsor, owner, and moderators',
   'Confirm audience and cadence',
   'Kick off the pilot',
 ]
 
 export default function CustomerNextStepsSlide() {
   return (
-    <Slide index={17} className={styles.nextSteps}>
+    <Slide index={18} className={styles.nextSteps}>
       <div className="accent-bar" />
       {/* Decorative orbs */}
       <div className={`orb ${styles.orb1}`} />
@@ -36,7 +36,7 @@ export default function CustomerNextStepsSlide() {
           </ul>
           <div className={styles.divider} />
           <p className={styles.timeline}>
-            <strong>Timeline:</strong> Late March &ndash; End of June 2026 &nbsp;|&nbsp; 5 exclusive customers
+            <strong>Timeline:</strong> Late March &ndash; End of June 2026 &nbsp;|&nbsp; 7 exclusive customers
           </p>
           <p className={styles.tagline}>
             Together, we turn GitHub AI into daily engineering practice&mdash;not just a license.

@@ -55,8 +55,8 @@ export default function IntentSlide() {
             <h3>Build<br />Community Flywheel</h3>
             <p>Customer community centered on GitHub AI — peer learning drives adoption faster than any sales motion.</p>
             <div className={styles.pillarStat}>
-              <span className={styles.statNum}>5</span>
-              <span className={styles.statLabel}>pilot accounts seeding it</span>
+              <span className={styles.statNum}>7</span>
+              <span className={styles.statLabel}>exclusive customers seeding it</span>
             </div>
           </div>
         </div>
@@ -77,7 +77,7 @@ export default function IntentSlide() {
               <div className={`${styles.execNum} ${styles.execNumPurple}`}>2</div>
               <div>
                 <h4>Pilot</h4>
-                <p>5 accounts — ING lead + 4 strategic — with STU, CSU &amp; account accountability.</p>
+                <p>7 exclusive accounts — with STU, CSU &amp; account accountability.</p>
               </div>
             </div>
             <div className={styles.execConnector} />
