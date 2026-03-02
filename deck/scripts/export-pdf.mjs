@@ -39,12 +39,13 @@ const TO = getArg('to', null)
 const CUSTOMER_NAME = getStringArg('customer-name', null)
 const PROJECT = getStringArg('project', null)
 const isCustomer = flag('customer')
+const slug = (s) => s.toLowerCase().replace(/\s+/g, '-')
 const outFile = PROJECT
   ? (CUSTOMER_NAME
-    ? `${CUSTOMER_NAME.toLowerCase()}-slides.pdf`
+    ? `${slug(CUSTOMER_NAME)}-slides.pdf`
     : `${PROJECT}-slides.pdf`)
   : isCustomer
-    ? `${(CUSTOMER_NAME || 'customer').toLowerCase()}-slides.pdf`
+    ? `${slug(CUSTOMER_NAME || 'customer')}-slides.pdf`
     : flag('internal') ? 'internal-slides.pdf' : 'slides.pdf'
 
 if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true })
