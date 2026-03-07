@@ -1,6 +1,6 @@
 {
   "name": "@lopezleandro03/deck-engine",
-  "version": "1.7.3",
+  "version": "1.7.4",
   "type": "module",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"

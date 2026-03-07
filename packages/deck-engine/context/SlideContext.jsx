@@ -41,7 +41,7 @@ function getStoredSlide(project, totalSlides) {
  *  │  ◈  P R O V I D E R                                         │
  *  ╰──────────────────────────────────────────────────────────────╯  */
 
-export function SlideProvider({ children, totalSlides, project }) {
+export function SlideProvider({ children, totalSlides, project, slides }) {
   const [current, setCurrent] = useState(() =>
     getStoredSlide(project, totalSlides),
   )
@@ -58,6 +58,28 @@ export function SlideProvider({ children, totalSlides, project }) {
       /* storage full / unavailable – ignore */
     }
   }, [current, project])
+
+  /*  📡 ─────────────────────────────────────────────
+   *  │  Notify parent window of slide changes        │
+   *  │  (used by deck-launcher to provide context)   │
+   *  ───────────────────────────────────────── 📡   */
+
+  useEffect(() => {
+    try {
+      if (window.parent && window.parent !== window) {
+        const slideName = slides?.[current]?.displayName || slides?.[current]?.name || ''
+        window.parent.postMessage({
+          type: 'deck:slide',
+          project,
+          slideIndex: current,
+          slideName,
+          totalSlides,
+        }, '*')
+      }
+    } catch {
+      /* cross-origin or non-iframe – ignore */
+    }
+  }, [current, project, totalSlides, slides])
 
   /*  ▸ ▸ ▸  Navigation helpers  ◂ ◂ ◂  */
 
