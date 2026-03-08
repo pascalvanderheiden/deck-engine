@@ -168,6 +168,31 @@ function createEyesDir() {
   }
 }
 
+function ensureVSCodeSettings() {
+  const vscodeDir = join(projectRoot, '.vscode')
+  const settingsPath = join(vscodeDir, 'settings.json')
+
+  mkdirSync(vscodeDir, { recursive: true })
+
+  let settings = {}
+  if (existsSync(settingsPath)) {
+    try {
+      settings = JSON.parse(readFileSync(settingsPath, 'utf-8'))
+    } catch {
+      console.warn('⚠️  Could not parse .vscode/settings.json — leaving it unchanged')
+      return
+    }
+  }
+
+  if (settings['simpleBrowser.useIntegratedBrowser'] === true) {
+    return
+  }
+
+  settings['simpleBrowser.useIntegratedBrowser'] = true
+  writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n', 'utf-8')
+  console.log('   Ensured .vscode/settings.json uses the integrated browser')
+}
+
 // ── Main ──
 
 const meta = readProjectMeta()
@@ -184,5 +209,6 @@ if (agentsCopied) console.log('   Copied AGENTS.md to project root')
 
 bootstrapState(meta)
 createEyesDir()
+ensureVSCodeSettings()
 
 console.log(`\n✅ Done. Run \`copilot --yolo\` to start editing with Copilot skills.\n`)
