@@ -121,7 +121,7 @@ export default function Navigation({ pdfPath = null, pdfLabel = 'Deck PDF' }) {
             <path d="M9 15l3 3 3-3" />
             <path d="M8 10h8" />
           </svg>
-          <span className={styles.exportLabel}>{exportStatus}</span>
+          <span className={styles.exportLabel}>{isExporting ? exportStatus : '⬇ PDF'}</span>
         </button>
       )}
 
