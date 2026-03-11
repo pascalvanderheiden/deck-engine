@@ -192,8 +192,6 @@ export default function CoverSlide() {
 const COVER_SLIDE_CSS = `\
 .cover {
   background: var(--bg-deep);
-  flex-direction: column;
-  justify-content: center;
   padding: 0 0 44px 0;
 }
 

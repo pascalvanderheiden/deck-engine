@@ -35,8 +35,9 @@ For each slide `.jsx` file in `src/slides/`, verify:
 
 For each `.module.css` file, verify the root class has:
 - [ ] `background: var(--bg-deep)`
-- [ ] `flex-direction: column`
 - [ ] `padding: 0 0 44px 0`
+- [ ] Does NOT use `flex: 1` on the body wrapper (defeats vertical centering)
+- [ ] Does NOT redundantly set `flex-direction: column` (inherited from engine `.slide` class)
 
 ---
 
@@ -76,5 +77,5 @@ Summarize findings:
 - [ ] Every `.jsx` slide has a companion `.module.css`
 - [ ] All slides have accent-bar, content-frame, BottomBar
 - [ ] BottomBar text is consistent across the project
-- [ ] CSS root classes have required properties
+- [ ] CSS root classes have required properties (`background`, `padding`) and no `flex: 1` on body wrapper
 - [ ] Project metadata (id, title, subtitle, icon, accent) is present

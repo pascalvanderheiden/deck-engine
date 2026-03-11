@@ -59,16 +59,16 @@ Create a companion `.module.css` file matching the JSX filename (e.g., `MyNewSli
 ```css
 .myNewSlide {
   background: var(--bg-deep);
-  flex-direction: column;
   padding: 0 0 44px 0;
 }
 ```
 
 - `background: var(--bg-deep)` — dark background on every slide
-- `flex-direction: column` — global `.slide` sets `display: flex`; this orients content vertically
 - `padding: 0 0 44px 0` — reserves space for the 44px BottomBar
 
-Optional: add `justify-content: center` to vertically center content (cover slides, thank-you slides).
+The engine's `.slide` class provides `flex-direction: column`, `justify-content: center`, `align-items: stretch`, and `overflow: hidden` by default. It also sets `flex-grow: 0` on all direct slide children, so **content stays at its natural height and is vertically centered by default** — building from the center outward. No scrolling is allowed.
+
+For dense slides that need top-alignment, override with `justify-content: flex-start`.
 
 ### Orb positioning (standard recipe)
 
@@ -85,7 +85,7 @@ Optional: add `justify-content: center` to vertically center content (cover slid
 }
 ```
 
-### Vertical centering body wrapper
+### Body wrapper
 
 ```css
 .body {
@@ -93,11 +93,11 @@ Optional: add `justify-content: center` to vertically center content (cover slid
   z-index: 10;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  flex: 1;
-  min-height: 0;
+  gap: 24px;
 }
 ```
+
+> **Do NOT add `flex: 1` or `flex-grow: 1`** to the body wrapper or any direct slide child — it stretches the wrapper to fill the slide and defeats the engine's built-in vertical centering. Inner elements within the body should also avoid `flex: 1` unless they genuinely need to fill remaining space within the body.
 
 ### Available CSS custom properties
 
@@ -190,7 +190,23 @@ export default {
 
 ---
 
-## F. Anti-Patterns to Avoid
+## F. Content Density Limits
+
+Slides must never overflow the viewport. The engine shows a **red dashed border warning** in dev mode when content exceeds the slide bounds. Follow these limits:
+
+| Layout | Max items | Notes |
+|--------|-----------|-------|
+| Cards (3-col grid) | 6 (2 rows) | Reduce card padding if tight |
+| Cards (2-col grid) | 4 (2 rows) | Preferred for detailed cards |
+| Timeline / event list | 3–4 items | Use compact card height for 4 |
+| Bullet points | 6–8 | Depends on line length |
+| Full-width content blocks | 2–3 | E.g. quote + detail section |
+
+**When content exceeds limits**, split across multiple slides rather than cramming.
+
+---
+
+## G. Anti-Patterns to Avoid
 
 1. **Missing `accent-bar`** — include on every slide.
 2. **Missing `content-frame content-gutter`** — content will be full-width without standard margins.
@@ -198,10 +214,13 @@ export default {
 4. **String paths for images** — always use `import logo from '../data/...'` (Vite resolves to URL).
 5. **Missing `padding: 0 0 44px 0`** on the slide root CSS class — content will overlap the BottomBar.
 6. **Inconsistent `BottomBar text`** — check existing slides and match their footer text.
+7. **Using `flex: 1` on body wrapper** — defeats vertical centering; the body should size to its content.
+8. **Adding `flex-direction: column` on slide root** — already provided by the engine's `.slide` class.
+9. **Overloading a slide** — if the dev server shows a red dashed border, the slide has too much content. Split into multiple slides.
 
 ---
 
-## G. Complete Step-by-Step
+## H. Complete Step-by-Step
 
 1. **Create** `src/slides/<SlideName>Slide.jsx` following the mandatory skeleton (section A).
 2. **Create** `src/slides/<SlideName>Slide.module.css` with required root properties (section B).
@@ -211,7 +230,7 @@ export default {
 ### Quick checklist
 
 - [ ] Created `<SlideName>Slide.jsx` with Slide, accent-bar, orbs, content-frame, BottomBar
-- [ ] Created `<SlideName>Slide.module.css` with `background: var(--bg-deep)`, `flex-direction: column`, `padding: 0 0 44px 0`, body centering wrapper
+- [ ] Created `<SlideName>Slide.module.css` with `background: var(--bg-deep)`, `padding: 0 0 44px 0`, body wrapper (no `flex: 1`)
 - [ ] Import added to `deck.config.js`
 - [ ] Component added to `slides` array at correct position
 - [ ] `BottomBar text` matches project convention

@@ -10,12 +10,13 @@ applyTo: "**/slides/**/*.module.css"
 ```css
 .mySlide {
   background: var(--bg-deep);
-  flex-direction: column;
   padding: 0 0 44px 0;        /* reserve BottomBar height */
 }
 ```
 
-Add `justify-content: center` for cover or thank-you slides.
+The engine's `.slide` class already sets `flex-direction: column`, `justify-content: center`, and `overflow: hidden`. The engine also sets `flex-grow: 0` on all direct slide children, so **content stays at its natural height and is vertically centered by default** — building from the center outward. No scrolling is allowed.
+
+For dense slides that need top-alignment, override with `justify-content: flex-start`.
 
 ## Orb positioning recipe
 
@@ -40,11 +41,11 @@ Add `justify-content: center` for cover or thank-you slides.
   z-index: 10;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  flex: 1;
-  min-height: 0;
+  gap: 24px;
 }
 ```
+
+> **Do NOT add `flex: 1` or `flex-grow: 1`** to the body wrapper or any direct slide child — it stretches the wrapper to fill the slide and defeats the engine's built-in vertical centering. The engine sets `flex-grow: 0` on all direct slide children to ensure content builds from the center outward. Inner elements within the body wrapper should also avoid `flex: 1` unless they genuinely need to fill remaining space within the body.
 
 ## Theme variables (always use these, never hard-code colors)
 
@@ -89,3 +90,7 @@ Add `justify-content: center` for cover or thank-you slides.
 | Subtitle | `17px` | 300–400 | — |
 | Body | `13px–14px` | 400 | — |
 | Badge | `10px–11px` | 600–700 | `1.5px` |
+
+## Content density limits
+
+Slides must never overflow the viewport. The engine shows a **red dashed border warning** in dev mode when content exceeds the slide bounds. When content doesn't fit, split across multiple slides rather than cramming. A presentation with more slides is better than one with clipped content.
