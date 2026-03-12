@@ -1,17 +1,17 @@
-# <img src="deckio.png" alt="deckio" height="28" /> [Deckio](https://deckio.art)
+# <img src="deckio.png" alt="DECKIO" height="28" /> [DECKIO](https://deckio.art)
 
 ## Get started
 
-Create a new Deckio project with the scaffolder:
+Create a new DECKIO project with the scaffolder:
 
 ```bash
 npm create @deckio/deck-project cool-deck
 npx @deckio/create-deck-project cool-deck
 ```
 
-This gives you a new Deckio presentation project powered by `@deckio/deck-engine`, with the base deck structure, Copilot instructions, and skills already in place.
+This gives you a new DECKIO presentation project powered by `@deckio/deck-engine`, with the base deck structure, Copilot instructions, and skills already in place.
 
-## How to work on Deckio?
+## How to work on DECKIO?
 
 For a smooth ride, use `Dev Containers` locally or use `GitHub Codespaces`. That saves you from installing dependencies yourself. Once the container is up and running, the presentation starts in a simple browser session shared with GitHub Copilot and you can start editing.
 
@@ -89,5 +89,5 @@ Before opening a PR:
 - update docs when behavior or developer workflow changes
 - include tests or validation steps when they are relevant
 
-Whether you are reporting issues, improving docs, or sending code, thank you for helping make Deckio better. <img src="deckio.png" alt="deckio" height="20" />
+Whether you are reporting issues, improving docs, or sending code, thank you for helping make DECKIO better. <img src="deckio.png" alt="DECKIO" height="20" />
 

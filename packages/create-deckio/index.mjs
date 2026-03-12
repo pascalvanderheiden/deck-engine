@@ -324,7 +324,7 @@ Create and maintain slide-based presentations. Each project is a self-contained 
 }
 
 const README = () => `\
-# Built with [Deckio](https://deckio.art)
+# Built with [DECKIO](https://deckio.art)
 
 ## How to edit this deck?
 
