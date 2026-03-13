@@ -5,194 +5,89 @@ description: Guide for adding a new slide to a deck project. Use this when asked
 
 # Adding a Slide to a Deck Project
 
-## A. Slide Component Structure (mandatory skeleton)
+## Step 0 — Read `deck.config.js`
 
-Every slide **must** follow this structure:
+Before writing any JSX or CSS:
 
-```jsx
-import { BottomBar, Slide } from '@deckio/deck-engine'
-import styles from './MyNewSlide.module.css'
+1. Open `deck.config.js`.
+2. Read both `theme` and `designSystem`.
+3. Resolve the active theme descriptor.
+4. Follow that descriptor exactly for slide structure, CSS, tokens, decorative elements, allowed components, and anti-patterns.
+5. Do **not** mix patterns from multiple descriptors.
 
-export default function MyNewSlide({ index, project }) {
-  return (
-    <Slide index={index} className={styles.myNewSlide}>
-      {/* 1. Decorative elements — always first */}
-      <div className="accent-bar" />
-      <div className={`orb ${styles.orb1}`} />
-      <div className={`orb ${styles.orb2}`} />
+## Step 1 — Resolve the active theme descriptor
 
-      {/* 2. Content area — vertically centered */}
-      <div className={`${styles.body} content-frame content-gutter`}>
-        {/* Slide content */}
-      </div>
+### Built-in themes
 
-      {/* 3. Footer — always last child */}
-      <BottomBar text="Project Footer Text" />
-    </Slide>
-  )
-}
-```
+Read the matching built-in descriptor from the engine package:
 
-### Mandatory elements (in order inside `<Slide>`):
+| Theme | Monorepo path | Generated deck path |
+|---|---|---|
+| `dark` | `packages/deck-engine/themes/descriptors/dark.md` | `node_modules/@deckio/deck-engine/themes/descriptors/dark.md` |
+| `light` | `packages/deck-engine/themes/descriptors/light.md` | `node_modules/@deckio/deck-engine/themes/descriptors/light.md` |
+| `shadcn` | `packages/deck-engine/themes/descriptors/shadcn.md` | `node_modules/@deckio/deck-engine/themes/descriptors/shadcn.md` |
 
-1. **`<div className="accent-bar" />`** — Left gradient accent bar. Include on every slide.
-2. **Orbs** — 2–4 `<div className={\`orb ${styles.orbN}\`} />` for ambient background glow.
-3. **Content wrapper** — `<div className="content-frame content-gutter">` constrains width to `1280px` and adds `72px` horizontal padding. **All visible content goes inside this wrapper.**
-4. **`<BottomBar text="..." />`** — Sticky footer, always the last child. The `text` must match the project's convention (check existing slides).
+### Custom or on-demand themes
 
-### Import paths (standalone project):
+If `theme` is not one of the built-ins, look for a custom descriptor in this order:
 
-| Resource | Import Path |
-|---|---|
-| `Slide`, `BottomBar`, `Navigation`, `SlideProvider`, `useSlides` | `'@deckio/deck-engine'` |
-| `GenericThankYouSlide` | `'@deckio/deck-engine'` |
-| Data / logos | `'../data/<file>'` |
+1. `src/themes/<theme>/descriptor.md`
+2. `src/themes/<theme>.descriptor.md`
+3. If `theme` is a CSS path such as `./src/themes/client-a.css`, look for:
+   - `./src/themes/client-a/descriptor.md`
+   - `./src/themes/client-a.descriptor.md`
 
----
+If no custom descriptor exists, fall back to the built-in descriptor that matches `designSystem`:
 
-## B. CSS Module Rules
+- `designSystem === 'shadcn'` → use the `shadcn` descriptor
+- any other value or no `designSystem` → use the `dark` descriptor as the default DECKIO fallback
 
-Create a companion `.module.css` file matching the JSX filename (e.g., `MyNewSlide.module.css`).
+## Step 2 — Cross-check `designSystem`
 
-### Required root class properties
+`designSystem` remains the safety check for structure:
 
-```css
-.myNewSlide {
-  background: var(--bg-deep);
-  padding: 0 0 44px 0;
-}
-```
+- `designSystem === 'shadcn'` → the slide must obey shadcn structure and anti-patterns
+- any other value or missing field → the slide must obey the default DECKIO structure and anti-patterns
 
-- `background: var(--bg-deep)` — dark background on every slide
-- `padding: 0 0 44px 0` — reserves space for the 44px BottomBar
+If the descriptor and `designSystem` disagree, follow `designSystem` for structure and call out the mismatch in your response so the project owner can fix the configuration.
 
-The engine's `.slide` class provides `flex-direction: column`, `justify-content: center`, `align-items: stretch`, and `overflow: hidden` by default. It also sets `flex-grow: 0` on all direct slide children, so **content stays at its natural height and is vertically centered by default** — building from the center outward. No scrolling is allowed.
+## Step 3 — Create the slide from the descriptor
 
-For dense slides that need top-alignment, override with `justify-content: flex-start`.
+The descriptor is the source of truth. Read these sections before generating code:
 
-### Orb positioning (standard recipe)
+1. **Exact JSX skeleton**
+2. **Exact CSS skeleton**
+3. **Token table**
+4. **Decorative elements available**
+5. **Available components**
+6. **Anti-patterns**
+7. **Example slide direction**
 
-```css
-.orb1 {
-  width: 420px; height: 420px;
-  top: -100px; right: -60px;
-  background: radial-gradient(circle at 40% 40%, var(--accent), var(--blue-glow) 50%, transparent 70%);
-}
-.orb2 {
-  width: 320px; height: 320px;
-  bottom: -40px; right: 100px;
-  background: radial-gradient(circle at 50% 50%, var(--purple-deep), rgba(110,64,201,0.25) 60%, transparent 75%);
-}
-```
+Do not paraphrase the structure if the descriptor gives an exact skeleton. Start from it, then fill in real content.
 
-### Body wrapper
+## Step 4 — Registration in `deck.config.js`
 
-```css
-.body {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-```
+After creating the slide files:
 
-> **Do NOT add `flex: 1` or `flex-grow: 1`** to the body wrapper or any direct slide child — it stretches the wrapper to fill the slide and defeats the engine's built-in vertical centering. Inner elements within the body should also avoid `flex: 1` unless they genuinely need to fill remaining space within the body.
+1. Add an import at the top: `import MyNewSlide from './src/slides/MyNewSlide.jsx'`
+2. Add the component to the `slides` array at the desired position.
+3. Do **not** change `theme`, `designSystem`, or `aurora` while registering the slide.
 
-### Available CSS custom properties
+The generic `App.jsx` renders slides from this array and passes `index` automatically. You do **not** manage slide indices manually.
 
-```
---bg-deep: #080b10       --surface: #161b22      --border: #30363d
---text: #e6edf3          --text-muted: #8b949e   --accent: #58a6ff
---blue-glow: #1f6feb     --purple: #bc8cff       --purple-deep: #6e40c9
---pink: #f778ba          --cyan: #56d4dd         --green: #3fb950
---orange: #d29922
-```
+## Step 5 — Common limits and guardrails
 
-### Available global CSS classes (no import needed)
+These apply regardless of theme:
 
-| Class | Purpose |
-|---|---|
-| `accent-bar` | Left gradient accent bar |
-| `orb` | Base decorative orb (absolute, rounded, blur, opacity) |
-| `grid-dots` | Dot grid pattern (200×200px) |
-| `content-frame` | Width constraint to `1280px`, centered |
-| `content-gutter` | `72px` left/right padding |
+- Always include `content-frame content-gutter`
+- Always include `BottomBar` as the last child inside `<Slide>`
+- Always use ESM imports for images and logos
+- Never use string paths for images
+- Never use `flex: 1` on the body wrapper
+- Never add `flex-direction: column` on the slide root
+- Never overload a slide until it overflows the viewport
 
----
-
-## C. Typography Conventions
-
-| Element | Size | Weight | Spacing | Usage |
-|---|---|---|---|---|
-| `h1` | `clamp(42px, 5vw, 72px)` | 900 | `-2px` | Cover slides only |
-| `h2` | `clamp(28px, 3.2vw, 36px)` | 700 | `-0.8px` | Main slide heading |
-| `h3` | `16px–20px` | 700 | `-0.3px` | Card titles |
-| Subtitle | `17px` | 300–400 | — | `color: var(--text-muted)`, below heading |
-| Body text | `13px–14px` | 400 | — | `color: var(--text-muted)` |
-| Badge/label | `10px–11px` | 600–700 | `1.5px` | Uppercase, rounded bg |
-
----
-
-## D. Content Layout Patterns
-
-### Card grid
-```css
-.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-```
-
-### Standard card
-```css
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 24px;
-  overflow: hidden;
-  transition: transform 0.3s ease, border-color 0.3s ease;
-}
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, var(--purple), var(--accent));
-  opacity: 0.6;
-}
-```
-
----
-
-## E. Registration in deck.config.js
-
-After creating the slide files, register the slide in `deck.config.js`:
-
-1. **Add an import** at the top: `import MyNewSlide from './src/slides/MyNewSlide.jsx'`
-2. **Add the component** to the `slides` array at the desired position.
-
-The generic `App.jsx` renders slides from this array, passing `index` as a prop automatically. **You do NOT need to manage index numbers manually** — they are assigned by array position.
-
-### Example: adding before ThankYou
-
-```js
-import MyNewSlide from './src/slides/MyNewSlide.jsx'
-// ... other imports
-
-export default {
-  // ... metadata
-  slides: [
-    CoverSlide,
-    // ... existing slides
-    MyNewSlide,        // ← insert here
-    ThankYouSlide,     // stays last
-  ],
-}
-```
-
----
-
-## F. Content Density Limits
-
-Slides must never overflow the viewport. The engine shows a **red dashed border warning** in dev mode when content exceeds the slide bounds. Follow these limits:
+### Content density limits
 
 | Layout | Max items | Notes |
 |--------|-----------|-------|
@@ -200,37 +95,24 @@ Slides must never overflow the viewport. The engine shows a **red dashed border 
 | Cards (2-col grid) | 4 (2 rows) | Preferred for detailed cards |
 | Timeline / event list | 3–4 items | Use compact card height for 4 |
 | Bullet points | 6–8 | Depends on line length |
-| Full-width content blocks | 2–3 | E.g. quote + detail section |
+| Full-width content blocks | 2–3 | Split across slides if it gets tight |
 
-**When content exceeds limits**, split across multiple slides rather than cramming.
+## Step 6 — Verify
 
----
+After writing the slide:
 
-## G. Anti-Patterns to Avoid
+1. Re-read the descriptor and confirm the slide still matches it.
+2. Run the project validation flow.
+3. Visually inspect the slide in the deck.
 
-1. **Missing `accent-bar`** — include on every slide.
-2. **Missing `content-frame content-gutter`** — content will be full-width without standard margins.
-3. **Missing `BottomBar`** — every slide needs it as the last child.
-4. **String paths for images** — always use `import logo from '../data/...'` (Vite resolves to URL).
-5. **Missing `padding: 0 0 44px 0`** on the slide root CSS class — content will overlap the BottomBar.
-6. **Inconsistent `BottomBar text`** — check existing slides and match their footer text.
-7. **Using `flex: 1` on body wrapper** — defeats vertical centering; the body should size to its content.
-8. **Adding `flex-direction: column` on slide root** — already provided by the engine's `.slide` class.
-9. **Overloading a slide** — if the dev server shows a red dashed border, the slide has too much content. Split into multiple slides.
+## Quick checklist
 
----
-
-## H. Complete Step-by-Step
-
-1. **Create** `src/slides/<SlideName>Slide.jsx` following the mandatory skeleton (section A).
-2. **Create** `src/slides/<SlideName>Slide.module.css` with required root properties (section B).
-3. **Register** in `deck.config.js` — add import + add to `slides` array (section E).
-4. **Verify** — the dev server hot-reloads automatically. Navigate to the new slide and check layout.
-
-### Quick checklist
-
-- [ ] Created `<SlideName>Slide.jsx` with Slide, accent-bar, orbs, content-frame, BottomBar
-- [ ] Created `<SlideName>Slide.module.css` with `background: var(--bg-deep)`, `padding: 0 0 44px 0`, body wrapper (no `flex: 1`)
-- [ ] Import added to `deck.config.js`
-- [ ] Component added to `slides` array at correct position
-- [ ] `BottomBar text` matches project convention
+- [ ] Read `theme` and `designSystem` from `deck.config.js`
+- [ ] Read the active theme descriptor before writing code
+- [ ] Used the descriptor's exact JSX skeleton or direct variant of it
+- [ ] Used the descriptor's exact CSS skeleton or direct variant of it
+- [ ] Stayed inside the descriptor's token set and component ecosystem
+- [ ] Avoided the descriptor's anti-patterns
+- [ ] Added the import to `deck.config.js`
+- [ ] Added the slide to the `slides` array
+- [ ] Left `theme`, `designSystem`, and `aurora` unchanged

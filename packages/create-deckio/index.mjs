@@ -6,7 +6,7 @@
  *   npm create @deckio/deck-project my-talk
  *   npx @deckio/create-deck-project my-talk
  */
-import { mkdirSync, writeFileSync, copyFileSync } from 'fs'
+import { mkdirSync, writeFileSync, copyFileSync, existsSync, readdirSync } from 'fs'
 import { join, resolve, dirname } from 'path'
 import { exec } from 'child_process'
 import { promisify } from 'util'
@@ -17,6 +17,56 @@ import { slugify, packageJson, deckConfig, mainJsx, resolveEngineRef, viteConfig
 const execAsync = promisify(exec)
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
+
+/**
+ * Resolve the engine source directory. In the monorepo it sits next to the
+ * scaffolder; when published to npm it won't exist — callers must check.
+ */
+function resolveEngineRoot() {
+  const monorepo = join(__dirname, '..', 'deck-engine')
+  if (existsSync(join(monorepo, 'package.json'))) return monorepo
+  return null
+}
+
+/**
+ * Copy Copilot skills, instructions, and AGENTS.md from the engine source
+ * into the new project. Runs before npm install so assets are available
+ * immediately. init-project.mjs re-syncs after install (state.md, eyes, etc.).
+ */
+function copyEngineAssets(dir) {
+  const engineRoot = resolveEngineRoot()
+  if (!engineRoot) return
+
+  // Skills
+  const srcSkills = join(engineRoot, 'skills')
+  if (existsSync(srcSkills)) {
+    for (const entry of readdirSync(srcSkills, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue
+      const skillFile = join(srcSkills, entry.name, 'SKILL.md')
+      if (!existsSync(skillFile)) continue
+      const destDir = join(dir, '.github', 'skills', entry.name)
+      mkdirSync(destDir, { recursive: true })
+      copyFileSync(skillFile, join(destDir, 'SKILL.md'))
+    }
+  }
+
+  // Instructions
+  const srcInstr = join(engineRoot, 'instructions')
+  if (existsSync(srcInstr)) {
+    const destInstr = join(dir, '.github', 'instructions')
+    mkdirSync(destInstr, { recursive: true })
+    for (const entry of readdirSync(srcInstr, { withFileTypes: true })) {
+      if (!entry.isFile() || !entry.name.endsWith('.instructions.md')) continue
+      copyFileSync(join(srcInstr, entry.name), join(destInstr, entry.name))
+    }
+  }
+
+  // AGENTS.md
+  const agentsSrc = join(engineRoot, 'instructions', 'AGENTS.md')
+  if (existsSync(agentsSrc)) {
+    copyFileSync(agentsSrc, join(dir, 'AGENTS.md'))
+  }
+}
 
 /** True-color ANSI swatch block for a hex color */
 function swatch(hex) {
@@ -520,7 +570,7 @@ async function main() {
     designSystem === 'shadcn'
       ? COVER_SLIDE_CSS_SHADCN
       : COVER_SLIDE_CSS)
-  write(dir, 'deck.config.js', deckConfig(slug, title, subtitle, icon, accent, theme, designSystem, aurora))
+  write(dir, 'deck.config.js', deckConfig(slug, title, subtitle, icon, accent, theme, designSystem, aurora, appearance))
 
   // shadcn ThankYouSlide is a local file (editorial style); default uses engine's GenericThankYouSlide
   if (designSystem === 'shadcn') {
@@ -556,6 +606,9 @@ async function main() {
   mkdirSync(join(dir, 'public'), { recursive: true })
   copyFileSync(join(__dirname, 'deckio.png'), join(dir, 'public', 'deckio.png'))
 
+  // Copy Copilot skills + instructions from engine source (available pre-install)
+  copyEngineAssets(dir)
+
   s.message('Installing dependencies...')
   try {
     await execAsync('npm install', { cwd: dir })
@@ -570,6 +623,7 @@ async function main() {
   } catch {
     s.stop('npm install failed — run it manually inside the project folder')
   }
+
 
   if (designSystem === 'shadcn') {
     clack.log.info('🤖 shadcn MCP server pre-configured — use AI to browse & add components')

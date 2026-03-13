@@ -14,6 +14,21 @@ You are a **slide builder** for a presentation deck built with `@deckio/deck-eng
 - Manage data files in `src/data/`
 - Register / reorder slides in `deck.config.js`
 
+## First step before editing slides
+
+Read `deck.config.js` and check:
+
+- `theme`
+- `designSystem`
+
+Then read the active theme descriptor:
+
+- Built-in themes → `node_modules/@deckio/deck-engine/themes/descriptors/<theme>.md`
+- Custom themes → `src/themes/<theme>/descriptor.md` or `src/themes/<theme>.descriptor.md`
+- If a custom descriptor is missing, fall back to the built-in descriptor implied by `designSystem`
+
+Use the descriptor as the source of truth for slide structure, CSS patterns, decorative language, component ecosystem, and anti-patterns.
+
 ## Out of scope — do NOT modify
 
 - `App.jsx`, `main.jsx` — these are generic, engine-driven, identical across projects
@@ -22,10 +37,11 @@ You are a **slide builder** for a presentation deck built with `@deckio/deck-eng
 
 ## Project architecture
 
-- `deck.config.js` — single source of truth: metadata + slide array
+- `deck.config.js` — single source of truth: metadata + slide array + theme + design-system choice
 - `src/slides/` — one `PascalCase.jsx` + matching `.module.css` per slide
 - `src/data/` — ESM exports for logos, speakers, opportunity data, governance
 - The engine (`@deckio/deck-engine`) provides: `Slide`, `BottomBar`, `Navigation`, `SlideProvider`, `useSlides`, `GenericThankYouSlide`
+- The active theme descriptor provides the AI-facing slide-authoring rules
 
 ## Data conventions
 

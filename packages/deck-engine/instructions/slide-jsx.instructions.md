@@ -5,30 +5,57 @@ applyTo: "**/slides/**/*.jsx"
 
 # Slide JSX Conventions
 
-## Imports
+## Step 0 — Read `deck.config.js` and the active descriptor
+
+Before writing any slide JSX:
+
+1. Read `theme` and `designSystem` from `deck.config.js`
+2. Resolve the active theme descriptor
+3. Use that descriptor as the source of truth for slide structure, imports, allowed components, and anti-patterns
+
+### Descriptor resolution
+
+- Built-in themes: read `dark.md`, `light.md`, or `shadcn.md` from `node_modules/@deckio/deck-engine/themes/descriptors/`
+- Custom themes: read `src/themes/<theme>/descriptor.md` or `src/themes/<theme>.descriptor.md`
+- If the custom descriptor is missing, fall back to the built-in descriptor implied by `designSystem`
+
+## Common imports
 
 ```jsx
 import { BottomBar, Slide } from '@deckio/deck-engine'
 import styles from './MySlide.module.css'
 ```
 
-## Mandatory skeleton (in order inside `<Slide>`)
+## What to read in the descriptor
 
-1. `<div className="accent-bar" />` — always first
-2. 2–4 orbs: `<div className={\`orb ${styles.orbN}\`} />`
-3. Content wrapper: `<div className={\`${styles.body} content-frame content-gutter\`}>` — all visible content here
-4. `<BottomBar text="..." />` — always last child
+Before generating JSX, read:
+
+- **Exact JSX skeleton**
+- **Decorative elements available**
+- **Available components**
+- **Anti-patterns**
+
+If the descriptor gives an exact skeleton, start there and fill in real content. Do not mix descriptor families.
 
 ## Props
 
-Every slide receives `{ index, project, title, subtitle }`. Pass `index` to `<Slide>`.
+Every slide receives `{ index, project }`. Pass `index` to `<Slide>`.
 
-## Available engine exports
+## Registration
 
-`Slide`, `BottomBar`, `Navigation`, `SlideProvider`, `useSlides`, `GenericThankYouSlide`
+After creating the slide component, register it in `deck.config.js`:
 
-## Anti-patterns
+```js
+import MySlide from './src/slides/MySlide.jsx'
+```
 
-- Never omit `accent-bar`, `content-frame content-gutter`, or `BottomBar`
+Then add `MySlide` to the `slides` array.
+
+## Hard rules
+
+- Never omit `content-frame content-gutter`
+- Never omit `BottomBar`
 - Never use string paths for images — always `import logo from '../data/...'`
 - Never hardcode slide indices — use `useSlides().goTo()` for navigation
+- Never violate the active descriptor's anti-patterns
+- If `designSystem` and the descriptor disagree, follow `designSystem` for structure and report the mismatch

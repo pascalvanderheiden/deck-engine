@@ -5,77 +5,117 @@ description: Validate and audit a deck project for correctness. Use this when as
 
 # Validate & Audit a Deck Project
 
-## Step 1: Audit deck.config.js
+## Step 0 — Read `deck.config.js`
 
-Open `deck.config.js` and verify:
+Open `deck.config.js` and read:
 
-### 1a. All imports resolve
+- `theme`
+- `designSystem`
+- `slides`
 
-For each slide import at the top of the file, verify the target file exists in `src/slides/`.
+Then resolve the active theme descriptor using the same rules as `deck-add-slide`:
 
-### 1b. slides array matches imports
+- Built-ins: read `dark.md`, `light.md`, or `shadcn.md` from the engine package descriptors folder
+- Custom themes: read the project's custom `descriptor.md` or `*.descriptor.md`
+- If no custom descriptor exists, fall back to the built-in descriptor implied by `designSystem`
 
-- Every imported slide should appear in the `slides` array.
-- No unused imports (imported but not in the array).
-- No undefined entries in the array (in array but not imported).
+Use the descriptor as the source of truth for required structure, required tokens, allowed components, decorative elements, and anti-patterns.
 
----
+## Step 1: Audit `deck.config.js`
 
-## Step 2: Verify slide structure
+Verify:
 
-For each slide `.jsx` file in `src/slides/`, verify:
+1. Every imported slide resolves to an existing file in `src/slides/`
+2. Every imported slide appears in the `slides` array
+3. There are no unused imports or undefined slide entries
+4. `slides` is non-empty
+5. `theme` and `designSystem` were not changed accidentally during unrelated work
 
-- [ ] Imports `{ Slide }` and `{ BottomBar }` from `'@deckio/deck-engine'`
-- [ ] Wrapped in `<Slide index={index} className={styles.xxx}>` (accepts `index` as prop)
-- [ ] Contains `<div className="accent-bar" />` as first child
-- [ ] Contains at least one decorative orb
-- [ ] Content is inside `<div className="content-frame content-gutter">`
-- [ ] `<BottomBar />` is the **last child** inside `<Slide>`
-- [ ] `BottomBar text` is consistent across all slides in the project
+## Step 2: Validate slide structure against the descriptor
 
-For each `.module.css` file, verify the root class has:
-- [ ] `background: var(--bg-deep)`
-- [ ] `padding: 0 0 44px 0`
-- [ ] Does NOT use `flex: 1` on the body wrapper (defeats vertical centering)
-- [ ] Does NOT redundantly set `flex-direction: column` (inherited from engine `.slide` class)
+For each slide `.jsx` file in `src/slides/`, check:
 
----
+### Common checks (all themes)
 
-## Step 3: Check companion files
+- [ ] Imports `{ Slide, BottomBar }` from `'@deckio/deck-engine'`
+- [ ] Uses `<Slide index={index} className={styles.xxx}>`
+- [ ] Uses a wrapper that includes `content-frame content-gutter`
+- [ ] Places `<BottomBar />` as the last child inside `<Slide>`
+- [ ] Uses consistent `BottomBar text` across slides
 
-- Every `.jsx` slide in `src/slides/` should have a matching `.module.css` file
+### Descriptor-driven checks
+
+Read the descriptor and verify the slide matches:
+
+- its **Exact JSX skeleton**
+- its **Decorative elements available** section
+- its **Available components** section
+- its **Anti-patterns** section
+
+Examples:
+
+- If the descriptor requires `accent-bar` and orbs, those must be present
+- If the descriptor forbids `accent-bar`, `orb`, or deep-space ornament, they must be absent
+- If the descriptor allows shadcn / ReactBits imports, imports must stay inside that ecosystem
+
+## Step 3: Validate CSS against the descriptor
+
+For each `.module.css` file, check:
+
+### Common checks (all themes)
+
+- [ ] Root class includes `padding: 0 0 44px 0`
+- [ ] No `flex: 1` on the body wrapper
+- [ ] No redundant `flex-direction: column` on the slide root
+- [ ] No obvious overflow-causing patterns
+
+### Descriptor-driven checks
+
+Read the descriptor and verify the CSS matches:
+
+- its **Exact CSS skeleton**
+- its **Token table**
+- its **Anti-patterns**
+
+Examples:
+
+- If the descriptor requires `var(--background)`, `var(--card)`, `var(--border)`, or other semantic tokens, use those exact names
+- If the descriptor forbids `var(--bg-deep)`, `var(--surface)`, `var(--text)`, or `var(--text-muted)`, flag them
+- If the descriptor forbids orb positioning classes or card `::before` bars, flag them
+
+## Step 4: Check companion files
+
+- Every `.jsx` slide in `src/slides/` should have a matching `.module.css`
 - No orphaned `.module.css` files without a matching `.jsx`
 
----
+## Step 5: Validate theme/design-system alignment
 
-## Step 4: Verify metadata
+Check whether the project configuration and descriptor agree:
 
-Check `deck.config.js` exports these fields:
-- [ ] `id` — string, matches the project folder name convention
-- [ ] `title` — display name
-- [ ] `subtitle` — tagline
-- [ ] `icon` — emoji
-- [ ] `accent` — CSS color value
-- [ ] `slides` — non-empty array
+- If `designSystem === 'shadcn'`, the project should visually and structurally follow the shadcn descriptor rules
+- If `designSystem` is not `'shadcn'`, the project should follow a default DECKIO descriptor such as dark or light
+- If the descriptor and `designSystem` disagree, report an **architecture mismatch** even if individual slides render
 
----
+## Step 6: Report results
 
-## Step 5: Report results
+Summarize:
 
-Summarize findings:
-
+- Active theme detected
+- Design system detected
+- Descriptor used
 - Number of slides validated
-- Any issues found and fixed (missing files, broken imports, structural issues)
+- Descriptor mismatches found
+- Any issues found and fixed
 - Overall project health: **pass** or **issues found**
-
----
 
 ## Quick checklist
 
-- [ ] All imports in `deck.config.js` resolve to existing files
-- [ ] `slides` array matches imports (no unused, no missing)
+- [ ] Read `theme` and `designSystem`
+- [ ] Read the active descriptor
+- [ ] All `deck.config.js` imports resolve
+- [ ] `slides` array matches imports
 - [ ] Every `.jsx` slide has a companion `.module.css`
-- [ ] All slides have accent-bar, content-frame, BottomBar
-- [ ] BottomBar text is consistent across the project
-- [ ] CSS root classes have required properties (`background`, `padding`) and no `flex: 1` on body wrapper
-- [ ] Project metadata (id, title, subtitle, icon, accent) is present
+- [ ] All slides match the descriptor and the design system
+- [ ] `BottomBar` is present and consistent
+- [ ] CSS root classes have required properties
+- [ ] No descriptor anti-patterns slipped in
