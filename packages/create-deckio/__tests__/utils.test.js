@@ -603,46 +603,50 @@ describe('deckConfig shadcn slides', () => {
 })
 
 describe('coverSlideJsxShadcn', () => {
-  it('includes grid background element', () => {
+  it('includes geometric background element', () => {
     const jsx = coverSlideJsxShadcn('Title', 'Sub', 'slug')
-    expect(jsx).toContain('gridBg')
+    expect(jsx).toContain('geometricBg')
+    expect(jsx).toContain('geoLine')
   })
 
-  it('includes accent glow element', () => {
+  it('has asymmetric two-column layout', () => {
     const jsx = coverSlideJsxShadcn('Title', 'Sub', 'slug')
-    expect(jsx).toContain('accentGlow')
+    expect(jsx).toContain('layout')
+    expect(jsx).toContain('main')
+    expect(jsx).toContain('aside')
   })
 
-  it('includes decorative strip', () => {
+  it('has overline with accent dash', () => {
     const jsx = coverSlideJsxShadcn('Title', 'Sub', 'slug')
-    expect(jsx).toContain('decorStrip')
-    expect(jsx).toContain('decorBlock')
+    expect(jsx).toContain('overlineDash')
+    expect(jsx).toContain('overline')
   })
 
-  it('includes ReactBits hint comment', () => {
+  it('imports ReactBits components', () => {
     const jsx = coverSlideJsxShadcn('Title', 'Sub', 'slug')
-    expect(jsx).toContain('npx shadcn add @react-bits')
+    expect(jsx).toContain("import BlurText from '@/components/ui/blur-text'")
+    expect(jsx).toContain("import ShinyText from '@/components/ui/shiny-text'")
   })
 })
 
 describe('COVER_SLIDE_CSS_SHADCN', () => {
-  it('has dot grid background', () => {
-    expect(COVER_SLIDE_CSS_SHADCN).toContain('.gridBg')
-    expect(COVER_SLIDE_CSS_SHADCN).toContain('radial-gradient(circle, var(--border) 1px')
+  it('has geometric diagonal background lines', () => {
+    expect(COVER_SLIDE_CSS_SHADCN).toContain('.geometricBg')
+    expect(COVER_SLIDE_CSS_SHADCN).toContain('.geoLine')
+    expect(COVER_SLIDE_CSS_SHADCN).toContain('rotate(25deg)')
   })
 
-  it('uses accent color in glow and shimmer', () => {
-    expect(COVER_SLIDE_CSS_SHADCN).toContain('.accentGlow')
+  it('uses accent color for overline and highlight', () => {
+    expect(COVER_SLIDE_CSS_SHADCN).toContain('.overlineDash')
     expect(COVER_SLIDE_CSS_SHADCN).toContain('var(--accent)')
   })
 
-  it('has shimmer animation', () => {
-    expect(COVER_SLIDE_CSS_SHADCN).toContain('@keyframes shimmer')
+  it('has two-column grid layout', () => {
+    expect(COVER_SLIDE_CSS_SHADCN).toContain('grid-template-columns')
   })
 
-  it('has decorative blocks using accent', () => {
-    expect(COVER_SLIDE_CSS_SHADCN).toContain('.decorBlock')
-    expect(COVER_SLIDE_CSS_SHADCN).toContain('background: var(--accent)')
+  it('has card enter animation', () => {
+    expect(COVER_SLIDE_CSS_SHADCN).toContain('@keyframes card-enter')
   })
 })
 
@@ -652,16 +656,17 @@ describe('featuresSlideJsxShadcn', () => {
     expect(jsx).toContain('export default function FeaturesSlide()')
   })
 
-  it('includes three capability cards', () => {
+  it('includes four capability cards', () => {
     const jsx = featuresSlideJsxShadcn('test-slug')
     expect(jsx).toContain('shadcn Components')
-    expect(jsx).toContain('CSS Animations')
+    expect(jsx).toContain('ReactBits Animations')
     expect(jsx).toContain('Theme System')
+    expect(jsx).toContain('Export Anywhere')
   })
 
-  it('includes ReactBits hint comment', () => {
+  it('imports SpotlightCard from ReactBits', () => {
     const jsx = featuresSlideJsxShadcn('test-slug')
-    expect(jsx).toContain('npx shadcn add @react-bits')
+    expect(jsx).toContain("import SpotlightCard from '@/components/ui/spotlight-card'")
   })
 
   it('imports Slide and BottomBar from deck-engine', () => {
@@ -676,8 +681,8 @@ describe('featuresSlideJsxShadcn', () => {
 })
 
 describe('FEATURES_SLIDE_CSS_SHADCN', () => {
-  it('has card grid layout', () => {
-    expect(FEATURES_SLIDE_CSS_SHADCN).toContain('grid-template-columns: repeat(3, 1fr)')
+  it('has two-column card grid layout', () => {
+    expect(FEATURES_SLIDE_CSS_SHADCN).toContain('grid-template-columns: repeat(2, 1fr)')
   })
 
   it('has staggered card-in animation', () => {
@@ -690,9 +695,10 @@ describe('FEATURES_SLIDE_CSS_SHADCN', () => {
     expect(FEATURES_SLIDE_CSS_SHADCN).toContain('var(--accent)')
   })
 
-  it('has hover effect on cards', () => {
-    expect(FEATURES_SLIDE_CSS_SHADCN).toContain('.card:hover')
-    expect(FEATURES_SLIDE_CSS_SHADCN).toContain('border-color: var(--accent)')
+  it('has SpotlightCard styling overrides', () => {
+    expect(FEATURES_SLIDE_CSS_SHADCN).toContain('.spotCard')
+    expect(FEATURES_SLIDE_CSS_SHADCN).toContain('var(--card)')
+    expect(FEATURES_SLIDE_CSS_SHADCN).toContain('var(--border)')
   })
 })
 
@@ -704,8 +710,8 @@ describe('gettingStartedSlideJsxShadcn', () => {
 
   it('includes three workflow steps', () => {
     const jsx = gettingStartedSlideJsxShadcn('test-slug')
-    expect(jsx).toContain('Add Components')
-    expect(jsx).toContain('Use in Slides')
+    expect(jsx).toContain('Install')
+    expect(jsx).toContain('Compose')
     expect(jsx).toContain('Present')
   })
 
@@ -737,12 +743,13 @@ describe('GETTING_STARTED_SLIDE_CSS_SHADCN', () => {
   })
 
   it('uses accent for step numbers', () => {
-    expect(GETTING_STARTED_SLIDE_CSS_SHADCN).toContain('.stepNumber')
+    expect(GETTING_STARTED_SLIDE_CSS_SHADCN).toContain('.stepNum')
     expect(GETTING_STARTED_SLIDE_CSS_SHADCN).toContain('background: var(--accent)')
   })
 
-  it('has step connector lines', () => {
-    expect(GETTING_STARTED_SLIDE_CSS_SHADCN).toContain('.stepConnector')
+  it('has horizontal timeline layout', () => {
+    expect(GETTING_STARTED_SLIDE_CSS_SHADCN).toContain('.timeline')
+    expect(GETTING_STARTED_SLIDE_CSS_SHADCN).toContain('grid-template-columns: repeat(3, 1fr)')
   })
 })
 

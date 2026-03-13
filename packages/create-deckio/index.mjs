@@ -456,6 +456,13 @@ async function main() {
     write(dir, 'src/components/theme-provider.jsx', themeProviderJsx())
     write(dir, 'src/components/mode-toggle.jsx', modeToggleJsx())
     mkdirSync(join(dir, 'src', 'components', 'ui'), { recursive: true })
+
+    // Pre-install ReactBits components for out-of-the-box animations
+    const reactBitsDir = join(__dirname, 'templates', 'react-bits')
+    const uiDir = join(dir, 'src', 'components', 'ui')
+    for (const file of ['blur-text.jsx', 'shiny-text.jsx', 'spotlight-card.jsx', 'decrypted-text.jsx']) {
+      copyFileSync(join(reactBitsDir, file), join(uiDir, file))
+    }
   }
 
   // Copy deckio.png to public/ for favicon and branding

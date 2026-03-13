@@ -51,6 +51,7 @@ export function packageJson(name, engineRef, { designSystem = 'none' } = {}) {
   if (designSystem === 'shadcn') {
     deps['class-variance-authority'] = '^0.7.1'
     deps['clsx'] = '^2.1.1'
+    deps['motion'] = '^12.23.12'
     deps['tailwind-merge'] = '^3.3.0'
   }
   return JSON.stringify({
@@ -228,51 +229,71 @@ export function jsConfig() {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export function coverSlideJsxShadcn(title, subtitle, slug) {
-  const highlight = title.split(' ').pop()
-  const before = title.split(' ').slice(0, -1).join(' ')
   return `\
-// 💡 Add animated components: npx shadcn add @react-bits/animated-content
 import { BottomBar, Slide } from '@deckio/deck-engine'
+import BlurText from '@/components/ui/blur-text'
+import ShinyText from '@/components/ui/shiny-text'
 import styles from './CoverSlide.module.css'
 
 export default function CoverSlide() {
   return (
     <Slide index={0} className={styles.cover}>
-      <div className={styles.gridBg} />
-      <div className={styles.accentGlow} />
-      <div className={styles.accentLine} />
+      <div className={styles.geometricBg}>
+        <div className={styles.geoLine} />
+        <div className={styles.geoLine} />
+        <div className={styles.geoLine} />
+      </div>
 
       <div className="content-frame content-gutter">
-        <div className={styles.content}>
-          <div className={styles.badge}>
-            <span className={styles.badgeDot} />
-            <span>${slug}</span>
+        <div className={styles.layout}>
+          <div className={styles.main}>
+            <div className={styles.overline}>
+              <span className={styles.overlineDash} />
+              <ShinyText
+                text="${slug}"
+                speed={3}
+                color="var(--muted-foreground)"
+                shineColor="var(--accent)"
+                className={styles.overlineText}
+              />
+            </div>
+
+            <BlurText
+              text="${title}"
+              className={styles.title}
+              delay={120}
+              animateBy="words"
+              direction="top"
+              stepDuration={0.5}
+            />
+
+            <BlurText
+              text="${subtitle}"
+              className={styles.subtitle}
+              delay={40}
+              animateBy="words"
+              direction="bottom"
+              stepDuration={0.4}
+            />
           </div>
 
-          <h1 className={styles.title}>
-            ${before ? `${before} ` : ''}<span className={styles.highlight}>${highlight}</span>
-          </h1>
-
-          <p className={styles.subtitle}>
-            ${subtitle}
-          </p>
-
-          <div className={styles.meta}>
-            <div className={styles.metaItem}>
-              <span className={styles.metaLabel}>Project</span>
-              <span className={styles.metaValue}>${title}</span>
+          <div className={styles.aside}>
+            <div className={styles.card}>
+              <div className={styles.cardRow}>
+                <span className={styles.cardLabel}>Project</span>
+                <span className={styles.cardValue}>${title}</span>
+              </div>
+              <div className={styles.cardDivider} />
+              <div className={styles.cardRow}>
+                <span className={styles.cardLabel}>Date</span>
+                <span className={styles.cardValue}>${new Date().getFullYear()}</span>
+              </div>
+              <div className={styles.cardDivider} />
+              <div className={styles.cardRow}>
+                <span className={styles.cardLabel}>Stack</span>
+                <span className={styles.cardValue}>React + DECKIO</span>
+              </div>
             </div>
-            <div className={styles.metaDivider} />
-            <div className={styles.metaItem}>
-              <span className={styles.metaLabel}>Date</span>
-              <span className={styles.metaValue}>${new Date().getFullYear()}</span>
-            </div>
-          </div>
-
-          <div className={styles.decorStrip}>
-            <span className={styles.decorBlock} />
-            <span className={styles.decorBlock} />
-            <span className={styles.decorBlock} />
           </div>
         </div>
       </div>
@@ -288,180 +309,135 @@ export const COVER_SLIDE_CSS_SHADCN = `\
 .cover {
   background: var(--background);
   padding: 0 0 44px 0;
-  position: relative;
   overflow: hidden;
 }
 
-/* Dot grid background — fills the lower half with texture */
-.gridBg {
+/* Geometric background — diagonal accent lines */
+.geometricBg {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
-  background-size: 32px 32px;
-  mask-image: linear-gradient(to bottom, transparent 15%, rgba(0,0,0,0.04) 40%, rgba(0,0,0,0.08) 100%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 15%, rgba(0,0,0,0.04) 40%, rgba(0,0,0,0.08) 100%);
+  overflow: hidden;
   pointer-events: none;
 }
 
-/* Soft accent glow — anchored bottom-right */
-.accentGlow {
+.geoLine {
   position: absolute;
-  bottom: -120px;
-  right: -60px;
-  width: 480px;
-  height: 480px;
-  border-radius: 50%;
-  background: radial-gradient(circle at center, var(--accent), transparent 70%);
-  opacity: 0.07;
-  pointer-events: none;
-  animation: glow-breathe 6s ease-in-out infinite;
+  width: 1px;
+  height: 200%;
+  background: var(--border);
+  opacity: 0.4;
+  transform: rotate(25deg);
+  transform-origin: top left;
 }
+.geoLine:nth-child(1) { left: 65%; top: -20%; }
+.geoLine:nth-child(2) { left: 72%; top: -20%; opacity: 0.2; }
+.geoLine:nth-child(3) { left: 79%; top: -20%; opacity: 0.1; }
 
-@keyframes glow-breathe {
-  0%, 100% { opacity: 0.07; transform: scale(1); }
-  50% { opacity: 0.12; transform: scale(1.05); }
-}
-
-/* Accent top shimmer line */
-.accentLine {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--accent) 30%,
-    var(--foreground) 50%,
-    var(--accent) 70%,
-    transparent
-  );
-  opacity: 0.5;
-}
-.accentLine::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -60%;
-  width: 60%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--accent) 50%,
-    transparent
-  );
-  animation: shimmer 3.5s ease-in-out infinite;
-}
-
-@keyframes shimmer {
-  0% { left: -60%; opacity: 0; }
-  20% { opacity: 0.8; }
-  100% { left: 100%; opacity: 0; }
-}
-
-/* Content layout */
-.content {
+/* Two-column asymmetric layout */
+.layout {
   position: relative;
   z-index: 10;
-  max-width: 720px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 64px;
+  align-items: center;
+  min-height: 0;
+}
+
+.main {
   display: flex;
   flex-direction: column;
-  gap: 0;
 }
 
-/* Badge / eyebrow */
-.badge {
-  display: inline-flex;
+/* Overline with dash */
+.overline {
+  display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
+  gap: 12px;
+  font-size: 13px;
   font-weight: 500;
-  letter-spacing: 1.5px;
+  letter-spacing: 3px;
   text-transform: uppercase;
   color: var(--muted-foreground);
-  padding: 6px 14px;
-  border: 1px solid var(--border);
-  border-radius: 100px;
-  width: fit-content;
-  margin-bottom: 32px;
-  background: var(--secondary);
+  margin-bottom: 28px;
 }
 
-.badgeDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
+.overlineDash {
+  display: inline-block;
+  width: 32px;
+  height: 2px;
   background: var(--accent);
-  box-shadow: 0 0 6px var(--accent);
-  animation: pulse 2.5s ease-in-out infinite;
+  border-radius: 1px;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.85); }
-}
-
-/* Title */
+/* Title — large editorial type (BlurText renders a <p>) */
 .title {
-  font-size: clamp(48px, 5.5vw, 76px);
+  font-size: clamp(44px, 5vw, 72px);
   font-weight: 800;
-  line-height: 1.05;
+  line-height: 1.08;
   letter-spacing: -2.5px;
   color: var(--foreground);
   margin-bottom: 24px;
 }
 
-.highlight {
-  background: linear-gradient(
-    135deg,
-    var(--foreground) 0%,
-    var(--accent) 50%,
-    var(--foreground) 100%
-  );
-  background-size: 200% 200%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: gradient-shift 5s ease infinite;
-}
-
-@keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+/* Overline text — matches ShinyText inline span */
+.overlineText {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
 }
 
 /* Subtitle */
 .subtitle {
-  font-size: clamp(16px, 1.8vw, 20px);
+  font-size: clamp(16px, 1.6vw, 19px);
   font-weight: 400;
   color: var(--muted-foreground);
   line-height: 1.7;
-  margin-bottom: 40px;
-  max-width: 560px;
+  max-width: 480px;
 }
 
-/* Metadata bar */
-.meta {
-  display: inline-flex;
+/* Aside card — vertical metadata */
+.aside {
+  display: flex;
   align-items: center;
-  gap: 24px;
-  padding: 16px 24px;
+  justify-content: flex-end;
+}
+
+.card {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  margin-bottom: 32px;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 220px;
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--foreground) 4%, transparent);
+  animation: card-enter 0.7s ease both;
 }
 
-.metaItem {
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.cardRow {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  padding: 12px 0;
 }
+.cardRow:first-child { padding-top: 0; }
+.cardRow:last-child { padding-bottom: 0; }
 
-.metaLabel {
+.cardLabel {
   font-size: 11px;
   font-weight: 500;
   text-transform: uppercase;
@@ -469,84 +445,85 @@ export const COVER_SLIDE_CSS_SHADCN = `\
   color: var(--muted-foreground);
 }
 
-.metaValue {
+.cardValue {
   font-size: 14px;
   font-weight: 600;
   color: var(--foreground);
 }
 
-.metaDivider {
-  width: 1px;
-  height: 32px;
+.cardDivider {
+  height: 1px;
   background: var(--border);
-}
-
-/* Decorative accent blocks — visual rhythm in the lower zone */
-.decorStrip {
-  display: flex;
-  gap: 8px;
-}
-
-.decorBlock {
-  width: 32px;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--accent);
-  opacity: 0.25;
-}
-.decorBlock:first-child {
-  width: 48px;
-  opacity: 0.45;
-}
-.decorBlock:last-child {
-  width: 20px;
-  opacity: 0.15;
 }
 `
 
 export function featuresSlideJsxShadcn(slug) {
   return `\
-// 💡 npx shadcn add @react-bits/animated-content
 import { BottomBar, Slide } from '@deckio/deck-engine'
+import SpotlightCard from '@/components/ui/spotlight-card'
 import styles from './FeaturesSlide.module.css'
+
+const features = [
+  {
+    icon: '🧩',
+    title: 'shadcn Components',
+    desc: 'Button, Card, Dialog — add any component with one command. Full accessibility built in.',
+    code: 'npx shadcn add button',
+    delay: '0s',
+  },
+  {
+    icon: '✨',
+    title: 'ReactBits Animations',
+    desc: 'BlurText, SpotlightCard, DecryptedText — hover these cards to see the spotlight effect live.',
+    code: '@react-bits/spotlight-card',
+    delay: '0.12s',
+  },
+  {
+    icon: '🎨',
+    title: 'Theme System',
+    desc: 'Light, dark, and system modes. One toggle switches the entire design token palette.',
+    code: 'Built-in mode toggle',
+    delay: '0.24s',
+  },
+  {
+    icon: '📦',
+    title: 'Export Anywhere',
+    desc: 'Export to PDF, capture screenshots, or deploy as a static site. Your slides, your way.',
+    code: 'npm run build',
+    delay: '0.36s',
+  },
+]
 
 export default function FeaturesSlide() {
   return (
     <Slide index={1} className={styles.slide}>
-      <div className={styles.gridBg} />
-
       <div className="content-frame content-gutter">
         <div className={styles.content}>
-          <p className={styles.eyebrow}>Capabilities</p>
-          <h2 className={styles.title}>What You Can Build</h2>
+          <div className={styles.header}>
+            <span className={styles.overlineDash} />
+            <p className={styles.eyebrow}>Capabilities</p>
+            <h2 className={styles.title}>What You Can Build</h2>
+            <p className={styles.lead}>
+              Everything you need to create polished, interactive presentations.
+            </p>
+          </div>
 
-          <div className={styles.cards}>
-            <div className={styles.card} style={{ animationDelay: '0s' }}>
-              <div className={styles.cardIcon}>\u{1F9E9}</div>
-              <h3 className={styles.cardTitle}>shadcn Components</h3>
-              <p className={styles.cardDesc}>
-                Button, Card, Dialog \\u2014 add any component with one command.
-              </p>
-              <code className={styles.cardHint}>npx shadcn add button</code>
-            </div>
-
-            <div className={styles.card} style={{ animationDelay: '0.15s' }}>
-              <div className={styles.cardIcon}>\\u2728</div>
-              <h3 className={styles.cardTitle}>CSS Animations</h3>
-              <p className={styles.cardDesc}>
-                Smooth transitions, staggered reveals, hover effects \\u2014 pure CSS.
-              </p>
-              <code className={styles.cardHint}>@react-bits/animated-content</code>
-            </div>
-
-            <div className={styles.card} style={{ animationDelay: '0.3s' }}>
-              <div className={styles.cardIcon}>\u{1F3A8}</div>
-              <h3 className={styles.cardTitle}>Theme System</h3>
-              <p className={styles.cardDesc}>
-                Light, dark, system. One toggle switches everything.
-              </p>
-              <code className={styles.cardHint}>Built-in mode toggle</code>
-            </div>
+          <div className={styles.grid}>
+            {features.map((f, i) => (
+              <SpotlightCard
+                key={i}
+                className={styles.spotCard}
+                spotlightColor="color-mix(in srgb, var(--accent) 25%, transparent)"
+                style={{ animationDelay: f.delay }}
+              >
+                <div className={styles.cardHeader}>
+                  <span className={styles.cardIcon}>{f.icon}</span>
+                  <h3 className={styles.cardTitle}>{f.title}</h3>
+                </div>
+                <p className={styles.cardDesc}>{f.desc}</p>
+                <code className={styles.cardCode}>{f.code}</code>
+              </SpotlightCard>
+            ))}
           </div>
         </div>
       </div>
@@ -562,18 +539,7 @@ export const FEATURES_SLIDE_CSS_SHADCN = `\
 .slide {
   background: var(--background);
   padding: 0 0 44px 0;
-  position: relative;
   overflow: hidden;
-}
-
-.gridBg {
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
-  background-size: 32px 32px;
-  mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.03) 50%, rgba(0,0,0,0.06) 100%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.03) 50%, rgba(0,0,0,0.06) 100%);
-  pointer-events: none;
 }
 
 .content {
@@ -581,50 +547,68 @@ export const FEATURES_SLIDE_CSS_SHADCN = `\
   z-index: 10;
 }
 
+.header {
+  margin-bottom: 48px;
+}
+
+.overlineDash {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+  margin-bottom: 16px;
+}
+
 .eyebrow {
   font-size: 12px;
   font-weight: 500;
-  letter-spacing: 2px;
+  letter-spacing: 2.5px;
   text-transform: uppercase;
   color: var(--accent);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .title {
-  font-size: clamp(32px, 4vw, 52px);
+  font-size: clamp(32px, 3.5vw, 48px);
   font-weight: 800;
   letter-spacing: -1.5px;
   color: var(--foreground);
-  margin-bottom: 48px;
+  margin-bottom: 12px;
   line-height: 1.1;
 }
 
-.cards {
+.lead {
+  font-size: 16px;
+  color: var(--muted-foreground);
+  line-height: 1.6;
+  max-width: 420px;
+}
+
+/* 2-column card grid — better for projection readability */
+.grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
 }
 
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 28px 24px;
+/* SpotlightCard wrapper — override defaults for theme tokens */
+.spotCard {
+  background: var(--card) !important;
+  border-color: var(--border) !important;
+  border-radius: var(--radius) !important;
+  padding: 28px !important;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  animation: card-in 0.6s ease both;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-.card:hover {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent);
+  gap: 14px;
+  animation: card-in 0.5s ease both;
+  transition: border-color 0.25s, box-shadow 0.25s;
 }
 
 @keyframes card-in {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -632,13 +616,19 @@ export const FEATURES_SLIDE_CSS_SHADCN = `\
   }
 }
 
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .cardIcon {
-  font-size: 28px;
+  font-size: 24px;
   line-height: 1;
 }
 
 .cardTitle {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--foreground);
   letter-spacing: -0.3px;
@@ -647,15 +637,16 @@ export const FEATURES_SLIDE_CSS_SHADCN = `\
 .cardDesc {
   font-size: 14px;
   color: var(--muted-foreground);
-  line-height: 1.55;
+  line-height: 1.6;
 }
 
-.cardHint {
+.cardCode {
   font-size: 12px;
   font-family: var(--font-mono, ui-monospace, monospace);
   color: var(--accent);
   background: var(--secondary);
-  padding: 4px 10px;
+  border: 1px solid var(--border);
+  padding: 6px 12px;
   border-radius: calc(var(--radius) * 0.6);
   width: fit-content;
   margin-top: auto;
@@ -673,40 +664,62 @@ export default function GettingStartedSlide() {
     <Slide index={2} className={styles.slide}>
       <div className="content-frame content-gutter">
         <div className={styles.content}>
-          <p className={styles.eyebrow}>Workflow</p>
-          <h2 className={styles.title}>Getting Started</h2>
+          <div className={styles.header}>
+            <span className={styles.overlineDash} />
+            <p className={styles.eyebrow}>Workflow</p>
+            <h2 className={styles.title}>Getting Started</h2>
+          </div>
 
-          <div className={styles.steps}>
+          <div className={styles.timeline}>
             <div className={styles.step} style={{ animationDelay: '0s' }}>
-              <div className={styles.stepNumber}>1</div>
-              <div className={styles.stepBody}>
-                <h3 className={styles.stepTitle}>Add Components</h3>
+              <div className={styles.stepIndicator}>
+                <span className={styles.stepNum}>1</span>
+                <span className={styles.stepLine} />
+              </div>
+              <div className={styles.stepContent}>
+                <h3 className={styles.stepTitle}>Install</h3>
                 <div className={styles.codeBlock}>
-                  <span className={styles.codeDim}>$</span> npx shadcn add button
+                  <div className={styles.codeDots}>
+                    <span /><span /><span />
+                  </div>
+                  <div className={styles.codeLine}>
+                    <span className={styles.codeDim}>$</span> npx shadcn add button card dialog
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className={styles.stepConnector} />
-
-            <div className={styles.step} style={{ animationDelay: '0.2s' }}>
-              <div className={styles.stepNumber}>2</div>
-              <div className={styles.stepBody}>
-                <h3 className={styles.stepTitle}>Use in Slides</h3>
+            <div className={styles.step} style={{ animationDelay: '0.15s' }}>
+              <div className={styles.stepIndicator}>
+                <span className={styles.stepNum}>2</span>
+                <span className={styles.stepLine} />
+              </div>
+              <div className={styles.stepContent}>
+                <h3 className={styles.stepTitle}>Compose</h3>
                 <div className={styles.codeBlock}>
-                  <span className={styles.codeKeyword}>import</span> {"{"} Button {"}"} <span className={styles.codeKeyword}>from</span> <span className={styles.codeString}>'@/components/ui/button'</span>
+                  <div className={styles.codeDots}>
+                    <span /><span /><span />
+                  </div>
+                  <div className={styles.codeLine}>
+                    <span className={styles.codeKeyword}>import</span> {"{"} Button {"}"} <span className={styles.codeKeyword}>from</span> <span className={styles.codeString}>'@/components/ui/button'</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className={styles.stepConnector} />
-
-            <div className={styles.step} style={{ animationDelay: '0.4s' }}>
-              <div className={styles.stepNumber}>3</div>
-              <div className={styles.stepBody}>
+            <div className={styles.step} style={{ animationDelay: '0.3s' }}>
+              <div className={styles.stepIndicator}>
+                <span className={styles.stepNum}>3</span>
+              </div>
+              <div className={styles.stepContent}>
                 <h3 className={styles.stepTitle}>Present</h3>
                 <div className={styles.codeBlock}>
-                  <span className={styles.codeDim}>$</span> npm run dev
+                  <div className={styles.codeDots}>
+                    <span /><span /><span />
+                  </div>
+                  <div className={styles.codeLine}>
+                    <span className={styles.codeDim}>$</span> npm run dev
+                  </div>
                 </div>
               </div>
             </div>
@@ -725,99 +738,134 @@ export const GETTING_STARTED_SLIDE_CSS_SHADCN = `\
 .slide {
   background: var(--background);
   padding: 0 0 44px 0;
-  position: relative;
   overflow: hidden;
 }
 
 .content {
   position: relative;
   z-index: 10;
-  max-width: 680px;
+}
+
+.header {
+  margin-bottom: 48px;
+}
+
+.overlineDash {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+  margin-bottom: 16px;
 }
 
 .eyebrow {
   font-size: 12px;
   font-weight: 500;
-  letter-spacing: 2px;
+  letter-spacing: 2.5px;
   text-transform: uppercase;
   color: var(--accent);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .title {
-  font-size: clamp(32px, 4vw, 52px);
+  font-size: clamp(32px, 3.5vw, 48px);
   font-weight: 800;
   letter-spacing: -1.5px;
   color: var(--foreground);
-  margin-bottom: 48px;
   line-height: 1.1;
 }
 
-.steps {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+/* Horizontal timeline layout */
+.timeline {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
 }
 
 .step {
   display: flex;
+  flex-direction: column;
   gap: 20px;
-  align-items: flex-start;
   animation: step-in 0.5s ease both;
 }
 
 @keyframes step-in {
   from {
     opacity: 0;
-    transform: translateX(-12px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
   }
 }
 
-.stepNumber {
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.stepNum {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--background);
   background: var(--accent);
 }
 
-.stepBody {
+.stepLine {
   flex: 1;
+  height: 1px;
+  background: var(--border);
+  margin-left: 12px;
+}
+
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .stepTitle {
   font-size: 18px;
   font-weight: 700;
   color: var(--foreground);
-  margin-bottom: 10px;
   letter-spacing: -0.2px;
 }
 
-.stepConnector {
-  width: 2px;
-  height: 24px;
-  margin-left: 17px;
-  background: var(--border);
-}
-
+/* Code editor block */
 .codeBlock {
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 14px;
+  font-size: 13px;
   color: var(--foreground);
   background: var(--secondary);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 12px 16px;
+  overflow: hidden;
+}
+
+.codeDots {
+  display: flex;
+  gap: 6px;
+  padding: 10px 14px 0;
+}
+.codeDots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+}
+
+.codeLine {
+  padding: 10px 14px 14px;
   line-height: 1.5;
 }
 
@@ -838,22 +886,44 @@ export const GETTING_STARTED_SLIDE_CSS_SHADCN = `\
 
 export function thankYouSlideJsxShadcn(slug, slideIndex = 3) {
   return `\
-// 💡 Add animated components: npx shadcn add @react-bits/animated-content
 import { BottomBar, Slide } from '@deckio/deck-engine'
+import DecryptedText from '@/components/ui/decrypted-text'
+import ShinyText from '@/components/ui/shiny-text'
 import styles from './ThankYouSlide.module.css'
 
 export default function ThankYouSlide() {
   return (
     <Slide index={${slideIndex}} className={styles.slide}>
-      <div className={styles.topLine} />
-
       <div className="content-frame content-gutter">
         <div className={styles.content}>
-          <h2 className={styles.title}>Thank You</h2>
-          <div className={styles.divider} />
+          <span className={styles.accentDash} />
+          <h2 className={styles.title}>
+            <DecryptedText
+              text="Thank You"
+              animateOn="view"
+              speed={60}
+              maxIterations={20}
+              sequential
+              revealDirection="center"
+              characters="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+              className={styles.decryptedChar}
+              encryptedClassName={styles.encryptedChar}
+            />
+          </h2>
           <p className={styles.subtitle}>
-            Let\\u2019s build something great \\u2014 together.
+            <ShinyText
+              text="Let's build something great — together."
+              speed={4}
+              color="var(--muted-foreground)"
+              shineColor="var(--foreground)"
+              className={styles.shinySubtitle}
+            />
           </p>
+          <div className={styles.links}>
+            <span className={styles.link}>github.com</span>
+            <span className={styles.linkDot} />
+            <span className={styles.link}>@yourhandle</span>
+          </div>
         </div>
       </div>
 
@@ -1062,66 +1132,47 @@ export const THANK_YOU_SLIDE_CSS_SHADCN = `\
 .slide {
   background: var(--background);
   padding: 0 0 44px 0;
-  position: relative;
   overflow: hidden;
-}
-
-/* Subtle top accent line */
-.topLine {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--border) 20%,
-    var(--foreground) 50%,
-    var(--border) 80%,
-    transparent
-  );
-  opacity: 0.4;
 }
 
 .content {
   position: relative;
   z-index: 2;
-  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.accentDash {
+  display: block;
+  width: 40px;
+  height: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+  margin-bottom: 32px;
+  animation: dash-in 0.6s ease both;
+}
+
+@keyframes dash-in {
+  from {
+    opacity: 0;
+    width: 0;
+  }
+  to {
+    opacity: 1;
+    width: 40px;
+  }
 }
 
 .title {
-  font-size: clamp(48px, 6vw, 72px);
+  font-size: clamp(56px, 7vw, 96px);
   font-weight: 800;
-  letter-spacing: -2px;
-  line-height: 1.1;
-  background: linear-gradient(
-    135deg,
-    var(--foreground) 0%,
-    var(--muted-foreground) 40%,
-    var(--foreground) 60%,
-    var(--muted-foreground) 100%
-  );
-  background-size: 200% 200%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: ty-gradient 5s ease infinite;
-  margin-bottom: 24px;
-}
-
-@keyframes ty-gradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.divider {
-  width: 48px;
-  height: 2px;
-  background: var(--border);
-  margin-bottom: 24px;
-  border-radius: 1px;
+  letter-spacing: -3px;
+  line-height: 1.05;
+  color: var(--foreground);
+  margin-bottom: 20px;
 }
 
 .subtitle {
@@ -1130,5 +1181,55 @@ export const THANK_YOU_SLIDE_CSS_SHADCN = `\
   color: var(--muted-foreground);
   letter-spacing: 0.3px;
   line-height: 1.6;
+  margin-bottom: 36px;
+}
+
+.shinySubtitle {
+  font-size: clamp(16px, 1.8vw, 20px);
+  font-weight: 400;
+  letter-spacing: 0.3px;
+  line-height: 1.6;
+}
+
+/* DecryptedText character styles */
+.decryptedChar {
+  color: var(--foreground);
+}
+
+.encryptedChar {
+  color: var(--accent);
+  opacity: 0.7;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: links-in 0.7s ease both 0.3s;
+}
+
+@keyframes links-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.link {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: 0.3px;
+}
+
+.linkDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--border);
 }
 `
