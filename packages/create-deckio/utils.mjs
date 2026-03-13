@@ -91,9 +91,10 @@ createRoot(document.getElementById('root')).render(
 `
 }
 
-export function deckConfig(slug, title, subtitle, icon, accent, theme = 'dark', designSystem = 'none', aurora = null) {
+export function deckConfig(slug, title, subtitle, icon, accent, theme = 'dark', designSystem = 'none', aurora = null, appearance = 'dark') {
   const esc = (s) => s.replace(/'/g, "\\'")
   const dsLine = designSystem !== 'none' ? `\n  designSystem: '${esc(designSystem)}',` : ''
+  const appearanceLine = `\n  appearance: '${esc(appearance)}',`
   const auroraBlock = aurora ? `\n  aurora: {\n    palette: '${esc(aurora.palette)}',\n    colors: ${JSON.stringify(aurora.colors)},\n  },` : ''
 
   if (designSystem === 'shadcn') {
@@ -110,7 +111,7 @@ export default {
   description: '${esc(subtitle)}',
   icon: '${esc(icon)}',
   accent: '${esc(accent)}',
-  theme: '${esc(theme)}',${dsLine}${auroraBlock}
+  theme: '${esc(theme)}',${dsLine}${appearanceLine}${auroraBlock}
   order: 1,
   slides: [
     CoverSlide,
@@ -134,7 +135,7 @@ export default {
   description: '${esc(subtitle)}',
   icon: '${esc(icon)}',
   accent: '${esc(accent)}',
-  theme: '${esc(theme)}',${dsLine}
+  theme: '${esc(theme)}',${dsLine}${appearanceLine}
   order: 1,
   slides: [
     CoverSlide,

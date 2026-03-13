@@ -565,7 +565,7 @@ async function main() {
     designSystem === 'shadcn'
       ? COVER_SLIDE_CSS_SHADCN
       : COVER_SLIDE_CSS)
-  write(dir, 'deck.config.js', deckConfig(slug, title, subtitle, icon, accent, theme, designSystem, aurora))
+  write(dir, 'deck.config.js', deckConfig(slug, title, subtitle, icon, accent, theme, designSystem, aurora, appearance))
 
   // shadcn ThankYouSlide is a local file (editorial style); default uses engine's GenericThankYouSlide
   if (designSystem === 'shadcn') {

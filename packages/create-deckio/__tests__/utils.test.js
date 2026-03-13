@@ -152,6 +152,26 @@ describe('deckConfig', () => {
     const config = deckConfig('s', 'T', 'S', '📦', '#000', 'dark')
     expect(config).toMatch(/theme:\s*'/)
   })
+
+  it('defaults appearance to dark when not specified', () => {
+    const config = deckConfig('s', 'T', 'S', '📦', '#000')
+    expect(config).toContain("appearance: 'dark'")
+  })
+
+  it('includes appearance field set to light', () => {
+    const config = deckConfig('s', 'T', 'S', '📦', '#000', 'light', 'none', null, 'light')
+    expect(config).toContain("appearance: 'light'")
+  })
+
+  it('includes appearance field for shadcn dark', () => {
+    const config = deckConfig('s', 'T', 'S', '📦', '#000', 'shadcn', 'shadcn', null, 'dark')
+    expect(config).toContain("appearance: 'dark'")
+  })
+
+  it('includes appearance field for shadcn light', () => {
+    const config = deckConfig('s', 'T', 'S', '📦', '#000', 'shadcn', 'shadcn', null, 'light')
+    expect(config).toContain("appearance: 'light'")
+  })
 })
 
 describe('mainJsx', () => {
