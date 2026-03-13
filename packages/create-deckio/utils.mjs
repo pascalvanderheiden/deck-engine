@@ -34,7 +34,7 @@ export function resolveEngineRef(projectDir) {
   } catch { /* fall through to fallback */ }
 
   // Fallback: latest known published version (npm-installed scaffolder)
-  return '^0.1.1'
+  return 'latest'
 }
 
 export function slugify(text) {
