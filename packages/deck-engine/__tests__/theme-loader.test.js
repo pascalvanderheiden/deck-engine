@@ -104,8 +104,8 @@ describe('theme-loader', () => {
       expect(DEFAULT_THEME).toBe('dark')
     })
 
-    it('BUILTIN_THEMES contains dark, light, shadcn', () => {
-      expect(BUILTIN_THEMES).toEqual(['dark', 'light', 'shadcn'])
+    it('BUILTIN_THEMES contains dark, light, shadcn, funky-punk', () => {
+      expect(BUILTIN_THEMES).toEqual(['dark', 'light', 'shadcn', 'funky-punk'])
     })
   })
 })
