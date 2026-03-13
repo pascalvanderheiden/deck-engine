@@ -175,6 +175,60 @@ Every feature must go through a verification loop before being declared done. No
 
 ---
 
+### ARCH-002: Multi-Design-System Architecture Assessment
+**Author:** Rusty | **Date:** 2026-03-15 | **Status:** Active
+
+1. **Do not reposition DECKIO as a general multi-design-system engine** — too broad, too early, too likely to blur the product identity.
+2. **`theme` and `designSystem` are separate axes** — `theme` controls CSS tokens (visual appearance); `designSystem` controls component library infrastructure. Conflating them will make the product muddy.
+3. **One opt-in `shadcn` adapter is the right experiment** — framed as "presentation authoring with familiar components," not "full app UI inside slides."
+4. **Engine stays lean** — shadcn infrastructure belongs in scaffolder presets and generated project files only. Never a runtime dep of `@deckio/deck-engine`.
+5. **Presentation-valid shadcn primitives:** Card, Badge, Button (visual CTA), Separator, Tabs, Accordion, Table, Alert, Avatar. App-interaction widgets (Dialog, Sheet, Tooltip, Input) are low-value in a presentation context.
+6. **Prove usage before supporting a second design system** — adapter explosion (MUI, Chakra, Park UI) is a real scope-creep risk.
+7. **Success criteria:** do authors actually use generated shadcn components in real decks?
+
+---
+
+### SHADCN-001: shadcn/ui Design System Integration
+**Author:** Basher | **Date:** 2026-03-15 | **Status:** Implemented
+
+1. **`designSystem` is separate from `theme`** — `theme` controls visual appearance; `designSystem` controls component library infrastructure. You can have `theme: "shadcn"` with `designSystem: "none"` (just the look) or `designSystem: "shadcn"` (the full component system).
+2. **CLI flow is lean** — only asks about shadcn components when `theme: "shadcn"` is selected. Dark/light users see no extra prompts. Default is Yes when asked.
+3. **Pre-generated files, not `npx shadcn init`** — generates `components.json`, `src/lib/utils.js`, `jsconfig.json`, and the Vite `@` alias. Running `npx shadcn init` is interactive and fragile; pre-generation is faster and deterministic.
+4. **`jsconfig.json` is required** — shadcn CLI fails without it. Needs the `@/*` path mapping to resolve `@/lib/utils` and `@/components/ui/*`.
+5. **`tsx: false`, `rsc: false`** — DECKIO uses JSX (not TypeScript) and has no React Server Components. shadcn CLI generates `.jsx` accordingly.
+6. **ReactBits registry in `components.json`** — `registries: { "@react-bits": "https://reactbits.dev/r/{name}.json" }` enables `npx shadcn add @react-bits/animated-content` in shadcn-enabled projects.
+7. **Non-interactive mode** — reads `DECK_DESIGN_SYSTEM` env var. When `theme: "shadcn"` and no env var set, defaults to `"shadcn"` design system.
+8. **`VITE_CONFIG` replaced with `viteConfig()` function** — needed to conditionally include the `resolve.alias` block based on `designSystem`.
+
+**Key files:**
+- `packages/create-deckio/utils.mjs` — `packageJson()`, `deckConfig()`, `viteConfig()`, `componentsJson()`, `cnUtility()`, `jsConfig()`
+- `packages/create-deckio/index.mjs` — shadcn prompt, conditional file generation, README shadcn section
+
+---
+
+### CSS-001: @layer Strategy for shadcn/ui Compatibility
+**Author:** Livingston | **Date:** 2026-03-15 | **Status:** Implemented
+
+1. **Engine adapts to the ecosystem** — `global.css` now declares `@layer theme, base, components, utilities;` matching Tailwind v4's internal layer names exactly.
+2. **Layer order declaration lives in `global.css`** — it is imported first in scaffolded projects, so this declaration wins.
+3. **Engine reset and token defaults in `@layer base`** — same cascade priority as Tailwind's preflight; no override war with spacing/margin/padding utilities.
+4. **Engine component styles in `@layer components`** — Tailwind utilities (`@layer utilities`) correctly override engine defaults when needed.
+5. **Theme CSS `:root` blocks remain unlayered** — unlayered = highest cascade priority; theme token values always win over Tailwind and engine defaults.
+6. **CSS Modules don't need layers** — scoped hashed class names are inherently safe from Tailwind utility name collisions.
+7. **Full shadcn compatibility** — engine and shadcn share the same CSS variable names (`--background`, `--foreground`, `--primary`, etc.); shadcn components read engine tokens correctly.
+
+**Key files:**
+- `packages/deck-engine/styles/global.css` — layer order declaration, `@layer base`, `@layer components`
+
+---
+
+### 2026-03-13T02:47:00Z: User Directive — ReactBits as Complementary Library
+**By:** Ali Soliman (via Copilot) | **Date:** 2026-03-13 | **Status:** Implemented
+
+ReactBits (reactbits.dev) should be included as a complementary animation and components library alongside shadcn in the design system. It has cool animations and UI components that complement shadcn's more structural components. Implemented via ReactBits registry entry in generated `components.json` for shadcn-enabled projects.
+
+---
+
 ## Governance
 
 - All meaningful changes require team consensus
