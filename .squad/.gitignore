@@ -6,3 +6,5 @@ log/
 agents/*/history.md
 agents/*/history-archive.md
 decisions/inbox/
+agents/*/audit-*
+agents/*/design-token-*

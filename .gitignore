@@ -18,3 +18,5 @@ tmpclaude-*
 .squad/sessions/
 # Squad: SubSquad activation file (local to this machine)
 .squad-workstream
+audit-after-nav.png
+audit-slide2-viewport.png
