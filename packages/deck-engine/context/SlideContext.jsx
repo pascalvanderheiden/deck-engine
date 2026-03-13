@@ -41,11 +41,28 @@ function getStoredSlide(project, totalSlides) {
  *  │  ◈  P R O V I D E R                                         │
  *  ╰──────────────────────────────────────────────────────────────╯  */
 
-export function SlideProvider({ children, totalSlides, project, slides }) {
+const DEFAULT_THEME = 'dark'
+
+export function SlideProvider({ children, totalSlides, project, slides, theme }) {
   const [current, setCurrent] = useState(() =>
     getStoredSlide(project, totalSlides),
   )
   const [selectedCustomer, setSelectedCustomer] = useState(null)
+  const [activeTheme, setActiveTheme] = useState(theme || DEFAULT_THEME)
+
+  /*  🎨 ─────────────────────────────────────────────
+   *  │  Theme → data-theme on <html> for CSS hooks  │
+   *  ───────────────────────────────────────── 🎨   */
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', activeTheme)
+    return () => document.documentElement.removeAttribute('data-theme')
+  }, [activeTheme])
+
+  // Sync if the theme prop changes at runtime (e.g. HMR / config reload)
+  useEffect(() => {
+    if (theme && theme !== activeTheme) setActiveTheme(theme)
+  }, [theme])
 
   /*  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
    *  ░  Persist slide index  ─  HMR keeps position  ░
@@ -155,6 +172,8 @@ export function SlideProvider({ children, totalSlides, project, slides }) {
         selectedCustomer,
         setSelectedCustomer,
         project,
+        theme: activeTheme,
+        setTheme: setActiveTheme,
       }}
     >
       {children}
