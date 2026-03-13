@@ -9,21 +9,19 @@
 import { mkdirSync, writeFileSync, copyFileSync } from 'fs'
 import { join, resolve, dirname } from 'path'
 import { execSync } from 'child_process'
-import { createInterface } from 'readline'
 import { fileURLToPath } from 'url'
+import * as clack from '@clack/prompts'
+import { slugify, packageJson, deckConfig, mainJsx, resolveEngineRef, viteConfig, componentsJson, cnUtility, jsConfig, COLOR_PRESETS, AURORA_PALETTES, auroraAccent, coverSlideJsxShadcn, COVER_SLIDE_CSS_SHADCN, featuresSlideJsxShadcn, FEATURES_SLIDE_CSS_SHADCN, gettingStartedSlideJsxShadcn, GETTING_STARTED_SLIDE_CSS_SHADCN, thankYouSlideJsxShadcn, THANK_YOU_SLIDE_CSS_SHADCN, themeProviderJsx, appJsx, vscodeMcpConfig } from './utils.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
-function ask(rl, question, fallback) {
-  return new Promise((res) => {
-    rl.question(`${question} ${fallback ? `(${fallback}) ` : ''}`, (answer) => {
-      res(answer.trim() || fallback || '')
-    })
-  })
-}
-
-function slugify(text) {
-  return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+/** True-color ANSI swatch block for a hex color */
+function swatch(hex) {
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return ''
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `\x1b[48;2;${r};${g};${b}m  \x1b[0m`
 }
 
 function write(dir, relPath, content) {
@@ -31,44 +29,6 @@ function write(dir, relPath, content) {
   mkdirSync(join(full, '..'), { recursive: true })
   writeFileSync(full, content)
 }
-
-function packageJson(name) {
-  return JSON.stringify({
-    name: `deck-project-${name}`,
-    version: '0.1.0',
-    private: true,
-    type: 'module',
-    scripts: {
-      dev: 'vite',
-      build: 'vite build',
-      preview: 'vite preview',
-    },
-    dependencies: {
-      '@deckio/deck-engine': '^1.7.7',
-      react: '^19.1.0',
-      'react-dom': '^19.1.0',
-    },
-    devDependencies: {
-      '@vitejs/plugin-react': '^4.4.1',
-      vite: '^6.3.5',
-    },
-  }, null, 2) + '\n'
-}
-
-const VITE_CONFIG = `\
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import { deckPlugin } from '@deckio/deck-engine/vite'
-
-export default defineConfig({
-  plugins: [
-    react({
-      include: [/\\.[jt]sx?$/, /node_modules\\/@deckio\\/deck-engine\\/.+\\.jsx$/],
-    }),
-    deckPlugin(),
-  ],
-})
-`
 
 const INDEX_HTML = `\
 <!doctype html>
@@ -85,67 +45,6 @@ const INDEX_HTML = `\
   </body>
 </html>
 `
-
-const MAIN_JSX = `\
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import '@deckio/deck-engine/styles/global.css'
-import App from './App.jsx'
-
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
-`
-
-const APP_JSX = `\
-import { useEffect } from 'react'
-import { Navigation, SlideProvider } from '@deckio/deck-engine'
-import project from '../deck.config.js'
-
-export default function App() {
-  const { accent, id, slides, title } = project
-
-  useEffect(() => {
-    document.documentElement.style.setProperty('--accent', accent)
-    document.title = title
-  }, [accent, title])
-
-  return (
-    <SlideProvider totalSlides={slides.length} project={id} slides={slides}>
-      <Navigation />
-      <div className="deck" data-project-id={id}>
-        {slides.map((SlideComponent, index) => (
-          <SlideComponent key={\`\${id}-slide-\${index}\`} index={index} project={project} />
-        ))}
-      </div>
-    </SlideProvider>
-  )
-}
-`
-
-function deckConfig(slug, title, subtitle, icon, accent) {
-  const esc = (s) => s.replace(/'/g, "\\'")
-  return `\
-import CoverSlide from './src/slides/CoverSlide.jsx'
-import { GenericThankYouSlide as ThankYouSlide } from '@deckio/deck-engine'
-
-export default {
-  id: '${esc(slug)}',
-  title: '${esc(title)}',
-  subtitle: '${esc(subtitle)}',
-  description: '${esc(subtitle)}',
-  icon: '${esc(icon)}',
-  accent: '${esc(accent)}',
-  order: 1,
-  slides: [
-    CoverSlide,
-    ThankYouSlide,
-  ],
-}
-`
-}
 
 function coverSlideJsx(title, subtitle, slug) {
   const highlight = title.split(' ').pop()
@@ -195,24 +94,24 @@ export default function CoverSlide() {
 
 const COVER_SLIDE_CSS = `\
 .cover {
-  background: var(--bg-deep);
+  background: var(--background);
   padding: 0 0 44px 0;
 }
 
 .orb1 {
   width: 520px; height: 520px;
   top: -120px; right: -80px;
-  background: radial-gradient(circle at 40% 40%, var(--accent), rgba(63,185,80,0.3) 50%, transparent 70%);
+  background: radial-gradient(circle at 40% 40%, var(--accent), color-mix(in srgb, var(--green) 30%, transparent) 50%, transparent 70%);
 }
 .orb2 {
   width: 380px; height: 380px;
   bottom: -80px; right: 140px;
-  background: radial-gradient(circle at 50% 50%, var(--purple-deep), rgba(110,64,201,0.3) 60%, transparent 75%);
+  background: radial-gradient(circle at 50% 50%, var(--purple-deep), color-mix(in srgb, var(--purple-deep) 30%, transparent) 60%, transparent 75%);
 }
 .orb3 {
   width: 260px; height: 260px;
   top: 60px; right: 280px;
-  background: radial-gradient(circle at 50% 50%, var(--cyan), rgba(86,212,221,0.15) 60%, transparent 75%);
+  background: radial-gradient(circle at 50% 50%, var(--cyan), color-mix(in srgb, var(--cyan) 15%, transparent) 60%, transparent 75%);
 }
 
 .content {
@@ -248,7 +147,7 @@ const COVER_SLIDE_CSS = `\
 .subtitle {
   font-size: clamp(16px, 1.8vw, 20px);
   font-weight: 300;
-  color: var(--text-muted);
+  color: var(--muted-foreground);
   line-height: 1.65;
   margin-bottom: 48px;
   max-width: 580px;
@@ -259,7 +158,7 @@ const COVER_SLIDE_CSS = `\
   align-items: center;
   gap: 24px;
   padding: 14px 28px;
-  background: rgba(22, 27, 34, 0.8);
+  background: var(--surface-overlay);
   border: 1px solid var(--border);
   border-radius: 10px;
   backdrop-filter: blur(8px);
@@ -276,13 +175,13 @@ const COVER_SLIDE_CSS = `\
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1.2px;
-  color: var(--text-muted);
+  color: var(--muted-foreground);
 }
 
 .metaValue {
   font-size: 14px;
   font-weight: 600;
-  color: var(--text);
+  color: var(--foreground);
 }
 
 .metaDivider {
@@ -323,9 +222,41 @@ Create and maintain slide-based presentations. Each project is a self-contained 
 `
 }
 
-const README = () => `\
-# Built with [DECKIO](https://deckio.art)
+const README = (designSystem = 'none') => {
+  const shadcnSection = designSystem === 'shadcn' ? `
+## shadcn/ui Components
 
+This project is set up with [shadcn/ui](https://ui.shadcn.com). Add components with:
+
+\`\`\`bash
+npx shadcn@latest add button
+npx shadcn@latest add card
+npx shadcn@latest add dialog
+\`\`\`
+
+Components are installed to \`src/components/ui/\`. Import them in your slides:
+
+\`\`\`jsx
+import { Button } from '@/components/ui/button'
+\`\`\`
+
+The \`@/\` alias maps to \`src/\` — configured in \`vite.config.js\`.
+
+## 🤖 AI-Powered Component Discovery
+
+This project comes with the shadcn MCP server pre-configured for VS Code.
+Open the project in VS Code and try prompts like:
+
+- "Show me all available backgrounds from React Bits"
+- "Add the Aurora background from React Bits"
+- "Add a fade-in animation using React Bits"
+
+For other editors, run: \`npx shadcn@latest mcp init --client <your-client>\`
+
+` : ''
+  return `\
+# Built with [DECKIO](https://deckio.art)
+${shadcnSection}
 ## How to edit this deck?
 
 For a smooth ride, use \`Dev Containers\` locally or use \`GitHub Codespaces\`. That saves you from installing dependencies yourself. Once the container is up and running, the presentation starts in a simple browser session shared with GitHub Copilot and you can start editing.
@@ -390,6 +321,7 @@ Do you prefer TUIs? This works with GitHub Copilot CLI too.
 gh copilot --yolo
 \`\`\`
 `
+}
 
 async function main() {
   const arg = process.argv[2]
@@ -412,75 +344,229 @@ async function main() {
   const defaultTitle = slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
   const isInteractive = process.stdin.isTTY
 
-  let title, subtitle, accent, icon
-
-  console.log()
-  console.log(`  🎴 Creating deck project: ${slug}`)
-  console.log()
+  let title, subtitle, accent, icon, theme, appearance, designSystem = 'none', aurora = null
 
   if (isInteractive) {
-    const rl = createInterface({ input: process.stdin, output: process.stdout })
-    title = await ask(rl, '  Title:', defaultTitle)
-    subtitle = await ask(rl, '  Subtitle:', 'A presentation built with deck-engine')
-    accent = await ask(rl, '  Accent color:', '#3fb950')
-    icon = await ask(rl, '  Icon emoji:', '🎴')
-    rl.close()
+    clack.intro('DECKIO — Create a new deck')
+
+    title = await clack.text({
+      message: "What's the title of your deck?",
+      placeholder: defaultTitle,
+      defaultValue: defaultTitle,
+    })
+    if (clack.isCancel(title)) { clack.cancel('Cancelled.'); process.exit(0) }
+
+    subtitle = await clack.text({
+      message: 'Subtitle',
+      placeholder: 'A presentation built with deck-engine',
+      defaultValue: 'A presentation built with deck-engine',
+    })
+    if (clack.isCancel(subtitle)) { clack.cancel('Cancelled.'); process.exit(0) }
+
+    icon = await clack.text({
+      message: 'Icon emoji',
+      placeholder: '🎴',
+      defaultValue: '🎴',
+    })
+    if (clack.isCancel(icon)) { clack.cancel('Cancelled.'); process.exit(0) }
+
+    // Choose design system
+    const chosenDesignSystem = await clack.select({
+      message: 'Choose a design system',
+      options: [
+        { value: 'default', label: 'Default', hint: 'classic DECKIO with CSS custom properties' },
+        { value: 'shadcn', label: 'shadcn', hint: 'editorial design with Tailwind + shadcn/ui components' },
+      ],
+      initialValue: 'default',
+    })
+    if (clack.isCancel(chosenDesignSystem)) { clack.cancel('Cancelled.'); process.exit(0) }
+
+    // Choose appearance (dark/light)
+    appearance = await clack.select({
+      message: 'Choose appearance',
+      options: [
+        { value: 'dark', label: 'Dark' },
+        { value: 'light', label: 'Light' },
+      ],
+      initialValue: 'dark',
+    })
+    if (clack.isCancel(appearance)) { clack.cancel('Cancelled.'); process.exit(0) }
+
+    // Map selections to theme + designSystem
+    if (chosenDesignSystem === 'shadcn') {
+      theme = 'shadcn'
+      designSystem = 'shadcn'
+    } else {
+      theme = appearance // 'dark' or 'light'
+      designSystem = 'none'
+    }
+
+    // Color selection depends on design system
+    if (designSystem === 'shadcn') {
+      // Aurora palette picker — the palette IS the color identity for shadcn
+      const paletteOptions = AURORA_PALETTES.map((p) => ({
+        value: p.value,
+        label: `${swatch(p.colors[0])}${swatch(p.colors[1])}${swatch(p.colors[2])} ${p.label}`,
+        hint: p.hint,
+      }))
+
+      const chosenPalette = await clack.select({
+        message: 'Choose an aurora palette',
+        options: paletteOptions,
+        initialValue: 'ocean',
+      })
+      if (clack.isCancel(chosenPalette)) { clack.cancel('Cancelled.'); process.exit(0) }
+
+      const palette = AURORA_PALETTES.find((p) => p.value === chosenPalette)
+      aurora = { palette: palette.value, colors: palette.colors }
+      // Derive accent from palette — no separate accent prompt
+      accent = auroraAccent(palette.value)
+    } else {
+      // Default design system — accent color preset picker
+      const colorOptions = [
+        ...COLOR_PRESETS.map((c) => ({
+          value: c.value,
+          label: `${swatch(c.value)} ${c.label}`,
+          hint: c.value,
+        })),
+        { value: '__custom', label: '✎ Custom hex', hint: 'enter your own' },
+      ]
+
+      accent = await clack.select({
+        message: 'Choose an accent color',
+        options: colorOptions,
+        initialValue: '#6366f1',
+      })
+      if (clack.isCancel(accent)) { clack.cancel('Cancelled.'); process.exit(0) }
+
+      if (accent === '__custom') {
+        accent = await clack.text({
+          message: 'Enter a hex color',
+          placeholder: '#6366f1',
+          defaultValue: '#6366f1',
+          validate: (v) => /^#[0-9a-fA-F]{6}$/.test(v) ? undefined : 'Must be a valid hex color (e.g. #6366f1)',
+        })
+        if (clack.isCancel(accent)) { clack.cancel('Cancelled.'); process.exit(0) }
+      }
+    }
   } else {
     title = process.env.DECK_TITLE || defaultTitle
     subtitle = process.env.DECK_SUBTITLE || 'A presentation built with deck-engine'
-    accent = process.env.DECK_ACCENT || '#3fb950'
     icon = process.env.DECK_ICON || '🎴'
-    console.log('  Using defaults (non-interactive mode)')
-  }
-  console.log()
 
-  write(dir, 'package.json', packageJson(slug))
-  write(dir, 'vite.config.js', VITE_CONFIG)
+    // New env vars: DECK_DESIGN_SYSTEM + DECK_APPEARANCE
+    const envDesignSystem = process.env.DECK_DESIGN_SYSTEM
+    const envAppearance = process.env.DECK_APPEARANCE || 'dark'
+
+    if (envDesignSystem) {
+      // New-style env vars
+      if (envDesignSystem === 'shadcn') {
+        theme = 'shadcn'
+        designSystem = 'shadcn'
+        appearance = envAppearance
+      } else {
+        theme = envAppearance // 'dark' or 'light'
+        designSystem = 'none'
+        appearance = envAppearance
+      }
+    } else {
+      // Legacy fallback: DECK_THEME
+      theme = process.env.DECK_THEME || 'dark'
+      appearance = theme === 'shadcn' ? 'dark' : theme
+      designSystem = theme === 'shadcn' ? 'shadcn' : 'none'
+    }
+
+    if (designSystem === 'shadcn') {
+      // Aurora palette from env — derive accent from it
+      const envPalette = process.env.DECK_AURORA_PALETTE || 'ocean'
+      const palette = AURORA_PALETTES.find((p) => p.value === envPalette) || AURORA_PALETTES[0]
+      aurora = { palette: palette.value, colors: palette.colors }
+      accent = auroraAccent(palette.value)
+    } else {
+      // Default design system — accent from env
+      accent = process.env.DECK_ACCENT || '#6366f1'
+    }
+
+    clack.log.info('Using defaults (non-interactive mode)')
+  }
+
+  const s = clack.spinner()
+
+  const engineRef = resolveEngineRef(dir)
+  write(dir, 'package.json', packageJson(slug, engineRef, { designSystem }))
+  write(dir, 'vite.config.js', viteConfig({ designSystem }))
   write(dir, 'index.html', INDEX_HTML)
-  write(dir, 'src/main.jsx', MAIN_JSX)
-  write(dir, 'src/App.jsx', APP_JSX)
+  write(dir, 'src/main.jsx', mainJsx(theme))
+  write(dir, 'src/App.jsx', appJsx({ designSystem, appearance }))
   write(dir, 'src/data/.gitkeep', '')
-  write(dir, 'src/slides/CoverSlide.jsx', coverSlideJsx(title, subtitle, slug))
-  write(dir, 'src/slides/CoverSlide.module.css', COVER_SLIDE_CSS)
-  write(dir, 'deck.config.js', deckConfig(slug, title, subtitle, icon, accent))
+  write(dir, 'src/slides/CoverSlide.jsx',
+    designSystem === 'shadcn'
+      ? coverSlideJsxShadcn(title, subtitle, slug)
+      : coverSlideJsx(title, subtitle, slug))
+  write(dir, 'src/slides/CoverSlide.module.css',
+    designSystem === 'shadcn'
+      ? COVER_SLIDE_CSS_SHADCN
+      : COVER_SLIDE_CSS)
+  write(dir, 'deck.config.js', deckConfig(slug, title, subtitle, icon, accent, theme, designSystem, aurora))
+
+  // shadcn ThankYouSlide is a local file (editorial style); default uses engine's GenericThankYouSlide
+  if (designSystem === 'shadcn') {
+    write(dir, 'src/slides/FeaturesSlide.jsx', featuresSlideJsxShadcn(slug))
+    write(dir, 'src/slides/FeaturesSlide.module.css', FEATURES_SLIDE_CSS_SHADCN)
+    write(dir, 'src/slides/GettingStartedSlide.jsx', gettingStartedSlideJsxShadcn(slug))
+    write(dir, 'src/slides/GettingStartedSlide.module.css', GETTING_STARTED_SLIDE_CSS_SHADCN)
+    write(dir, 'src/slides/ThankYouSlide.jsx', thankYouSlideJsxShadcn(slug))
+    write(dir, 'src/slides/ThankYouSlide.module.css', THANK_YOU_SLIDE_CSS_SHADCN)
+  }
   write(dir, 'AGENTS.md', agentsMd())
-  write(dir, 'README.md', README())
+  write(dir, 'README.md', README(designSystem))
   write(dir, '.gitignore', 'node_modules\ndist\n.vite\n')
+
+  // shadcn/ui design system files
+  if (designSystem === 'shadcn') {
+    write(dir, 'components.json', componentsJson())
+    write(dir, 'src/lib/utils.js', cnUtility())
+    write(dir, 'jsconfig.json', jsConfig())
+    write(dir, 'src/components/theme-provider.jsx', themeProviderJsx())
+    write(dir, '.vscode/mcp.json', vscodeMcpConfig())
+    mkdirSync(join(dir, 'src', 'components', 'ui'), { recursive: true })
+
+    // Pre-install ReactBits components for out-of-the-box animations
+    const reactBitsDir = join(__dirname, 'templates', 'react-bits')
+    const uiDir = join(dir, 'src', 'components', 'ui')
+    for (const file of ['aurora.jsx', 'aurora.css', 'blur-text.jsx', 'shiny-text.jsx', 'spotlight-card.jsx', 'decrypted-text.jsx']) {
+      copyFileSync(join(reactBitsDir, file), join(uiDir, file))
+    }
+  }
 
   // Copy deckio.png to public/ for favicon and branding
   mkdirSync(join(dir, 'public'), { recursive: true })
   copyFileSync(join(__dirname, 'deckio.png'), join(dir, 'public', 'deckio.png'))
 
-  console.log('  📁 Project scaffolded!')
-  console.log()
+  clack.log.success('Project scaffolded!')
 
-  console.log('  📦 Installing dependencies...')
-  console.log()
+  s.start('Installing dependencies...')
   try {
-    execSync('npm install', { cwd: dir, stdio: 'inherit' })
+    execSync('npm install', { cwd: dir, stdio: 'pipe' })
+    s.stop('Dependencies installed')
   } catch {
-    console.log()
-    console.log('  ⚠️  npm install failed — run it manually inside the project folder.')
+    s.stop('npm install failed — run it manually inside the project folder')
   }
 
-  console.log()
-  console.log('  🔧 Initializing engine skills & instructions...')
+  s.start('Initializing engine skills & instructions...')
   try {
     const initScript = join(dir, 'node_modules', '@deckio', 'deck-engine', 'scripts', 'init-project.mjs')
-    execSync(`node "${initScript}"`, { cwd: dir, stdio: 'inherit' })
+    execSync(`node "${initScript}"`, { cwd: dir, stdio: 'pipe' })
+    s.stop('Engine initialized')
   } catch {
-    console.log('  ⚠️  Could not run init-project — run it manually: npx deck-init')
+    s.stop('Could not run init-project — run it manually: npx deck-init')
   }
 
-  console.log()
-  console.log('  ✅ Done! Your deck is ready.')
-  console.log()
-  console.log('  Next steps:')
-  console.log(`    cd ${slug}`)
-  console.log('    npm run dev')
-  console.log()
-  console.log('  Open http://localhost:5173 and start adding slides!')
-  console.log()
+  if (designSystem === 'shadcn') {
+    clack.log.info('🤖 shadcn MCP server pre-configured — use AI to browse & add components')
+  }
+
+  clack.outro(`Done! cd ${slug} && npm run dev`)
 }
 
 main()
