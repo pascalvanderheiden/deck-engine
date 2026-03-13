@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { slugify, packageJson, deckConfig, mainJsx, resolveEngineRef, viteConfig, componentsJson, cnUtility, jsConfig, COLOR_PRESETS } from '../utils.mjs'
+import { slugify, packageJson, deckConfig, mainJsx, resolveEngineRef, viteConfig, componentsJson, cnUtility, jsConfig, COLOR_PRESETS, themeProviderJsx, modeToggleJsx, appJsx } from '../utils.mjs'
 
 describe('slugify', () => {
   it('lowercases and hyphenates spaces', () => {
@@ -282,6 +282,18 @@ describe('viteConfig', () => {
     const config = viteConfig()
     expect(config).not.toContain('resolve:')
   })
+
+  it('includes server.fs.allow for file: protocol compatibility', () => {
+    const config = viteConfig()
+    expect(config).toContain('server:')
+    expect(config).toContain('fs:')
+    expect(config).toContain("allow: ['..', '../..']")
+  })
+
+  it('includes server.fs.allow in shadcn mode too', () => {
+    const config = viteConfig({ designSystem: 'shadcn' })
+    expect(config).toContain("allow: ['..', '../..']")
+  })
 })
 
 describe('componentsJson', () => {
@@ -450,5 +462,117 @@ describe('COLOR_PRESETS', () => {
   it('has no duplicate labels', () => {
     const labels = COLOR_PRESETS.map((p) => p.label)
     expect(new Set(labels).size).toBe(labels.length)
+  })
+})
+
+describe('themeProviderJsx', () => {
+  it('exports ThemeProvider component', () => {
+    const code = themeProviderJsx()
+    expect(code).toContain('export function ThemeProvider(')
+  })
+
+  it('exports useTheme hook', () => {
+    const code = themeProviderJsx()
+    expect(code).toContain('export function useTheme(')
+  })
+
+  it('uses localStorage for persistence', () => {
+    const code = themeProviderJsx()
+    expect(code).toContain('localStorage.getItem')
+    expect(code).toContain('localStorage.setItem')
+  })
+
+  it('manages light, dark, and system themes', () => {
+    const code = themeProviderJsx()
+    expect(code).toContain("root.classList.remove('light', 'dark')")
+    expect(code).toContain("'system'")
+    expect(code).toContain('prefers-color-scheme: dark')
+  })
+
+  it('defaults to light theme', () => {
+    const code = themeProviderJsx()
+    expect(code).toContain("defaultTheme = 'light'")
+  })
+
+  it('uses deckio storage key', () => {
+    const code = themeProviderJsx()
+    expect(code).toContain("storageKey = 'deckio-ui-theme'")
+  })
+})
+
+describe('modeToggleJsx', () => {
+  it('exports ModeToggle component', () => {
+    const code = modeToggleJsx()
+    expect(code).toContain('export function ModeToggle(')
+  })
+
+  it('imports useTheme from theme-provider', () => {
+    const code = modeToggleJsx()
+    expect(code).toContain("import { useTheme } from './theme-provider'")
+  })
+
+  it('cycles through light, dark, system modes', () => {
+    const code = modeToggleJsx()
+    expect(code).toContain("'light', 'dark', 'system'")
+  })
+
+  it('uses inline SVG icons (no external deps)', () => {
+    const code = modeToggleJsx()
+    expect(code).toContain('<svg')
+    expect(code).not.toContain('lucide-react')
+  })
+
+  it('is positioned fixed in bottom-right', () => {
+    const code = modeToggleJsx()
+    expect(code).toContain("position: 'fixed'")
+    expect(code).toContain("bottom:")
+    expect(code).toContain("right:")
+  })
+})
+
+describe('appJsx', () => {
+  it('returns App component without ThemeProvider by default', () => {
+    const code = appJsx()
+    expect(code).toContain('export default function App(')
+    expect(code).not.toContain('ThemeProvider')
+    expect(code).not.toContain('ModeToggle')
+  })
+
+  it('wraps with ThemeProvider when designSystem is shadcn', () => {
+    const code = appJsx({ designSystem: 'shadcn' })
+    expect(code).toContain('<ThemeProvider defaultTheme="light">')
+    expect(code).toContain('</ThemeProvider>')
+  })
+
+  it('includes ModeToggle when designSystem is shadcn', () => {
+    const code = appJsx({ designSystem: 'shadcn' })
+    expect(code).toContain('<ModeToggle />')
+    expect(code).toContain("import { ModeToggle } from './components/mode-toggle'")
+  })
+
+  it('imports ThemeProvider when designSystem is shadcn', () => {
+    const code = appJsx({ designSystem: 'shadcn' })
+    expect(code).toContain("import { ThemeProvider } from './components/theme-provider'")
+  })
+
+  it('always includes Navigation and SlideProvider', () => {
+    for (const ds of ['none', 'shadcn']) {
+      const code = appJsx({ designSystem: ds })
+      expect(code).toContain('<Navigation />')
+      expect(code).toContain('<SlideProvider')
+    }
+  })
+
+  it('sets --accent CSS variable in both modes', () => {
+    for (const ds of ['none', 'shadcn']) {
+      const code = appJsx({ designSystem: ds })
+      expect(code).toContain("setProperty('--accent', accent)")
+    }
+  })
+
+  it('defaults designSystem to none', () => {
+    const withDefault = appJsx()
+    const withNone = appJsx({ designSystem: 'none' })
+    expect(withDefault).toBe(withNone)
   })
 })
