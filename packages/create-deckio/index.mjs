@@ -333,7 +333,7 @@ async function main() {
   const defaultTitle = slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
   const isInteractive = process.stdin.isTTY
 
-  let title, subtitle, accent, icon, theme, designSystem = 'none'
+  let title, subtitle, accent, icon, theme, appearance, designSystem = 'none'
 
   if (isInteractive) {
     clack.intro('DECKIO — Create a new deck')
@@ -379,25 +379,35 @@ async function main() {
       if (clack.isCancel(accent)) { clack.cancel('Cancelled.'); process.exit(0) }
     }
 
-    theme = await clack.select({
-      message: 'Choose a theme',
+    // Step 1: Choose design system
+    const chosenDesignSystem = await clack.select({
+      message: 'Choose a design system',
       options: [
-        { value: 'dark', label: 'Dark', hint: 'deep space' },
-        { value: 'light', label: 'Light', hint: 'projection' },
-        { value: 'shadcn', label: 'shadcn', hint: 'editorial neutral' },
+        { value: 'default', label: 'Default', hint: 'classic DECKIO with CSS custom properties' },
+        { value: 'shadcn', label: 'shadcn', hint: 'editorial design with Tailwind + shadcn/ui components' },
+      ],
+      initialValue: 'default',
+    })
+    if (clack.isCancel(chosenDesignSystem)) { clack.cancel('Cancelled.'); process.exit(0) }
+
+    // Step 2: Choose appearance (dark/light)
+    appearance = await clack.select({
+      message: 'Choose appearance',
+      options: [
+        { value: 'dark', label: 'Dark' },
+        { value: 'light', label: 'Light' },
       ],
       initialValue: 'dark',
     })
-    if (clack.isCancel(theme)) { clack.cancel('Cancelled.'); process.exit(0) }
+    if (clack.isCancel(appearance)) { clack.cancel('Cancelled.'); process.exit(0) }
 
-    // Offer shadcn/ui design system when using shadcn theme
-    if (theme === 'shadcn') {
-      const useShadcn = await clack.confirm({
-        message: 'Include shadcn/ui components?',
-        initialValue: true,
-      })
-      if (clack.isCancel(useShadcn)) { clack.cancel('Cancelled.'); process.exit(0) }
-      if (useShadcn) designSystem = 'shadcn'
+    // Map selections to theme + designSystem
+    if (chosenDesignSystem === 'shadcn') {
+      theme = 'shadcn'
+      designSystem = 'shadcn'
+    } else {
+      theme = appearance // 'dark' or 'light'
+      designSystem = 'none'
     }
 
     icon = await clack.text({
@@ -411,8 +421,29 @@ async function main() {
     subtitle = process.env.DECK_SUBTITLE || 'A presentation built with deck-engine'
     accent = process.env.DECK_ACCENT || '#6366f1'
     icon = process.env.DECK_ICON || '🎴'
-    theme = process.env.DECK_THEME || 'dark'
-    designSystem = process.env.DECK_DESIGN_SYSTEM || (theme === 'shadcn' ? 'shadcn' : 'none')
+
+    // New env vars: DECK_DESIGN_SYSTEM + DECK_APPEARANCE
+    const envDesignSystem = process.env.DECK_DESIGN_SYSTEM
+    const envAppearance = process.env.DECK_APPEARANCE || 'dark'
+
+    if (envDesignSystem) {
+      // New-style env vars
+      if (envDesignSystem === 'shadcn') {
+        theme = 'shadcn'
+        designSystem = 'shadcn'
+        appearance = envAppearance
+      } else {
+        theme = envAppearance // 'dark' or 'light'
+        designSystem = 'none'
+        appearance = envAppearance
+      }
+    } else {
+      // Legacy fallback: DECK_THEME
+      theme = process.env.DECK_THEME || 'dark'
+      appearance = theme === 'shadcn' ? 'dark' : theme
+      designSystem = theme === 'shadcn' ? 'shadcn' : 'none'
+    }
+
     clack.log.info('Using defaults (non-interactive mode)')
   }
 
@@ -423,7 +454,7 @@ async function main() {
   write(dir, 'vite.config.js', viteConfig({ designSystem }))
   write(dir, 'index.html', INDEX_HTML)
   write(dir, 'src/main.jsx', mainJsx(theme))
-  write(dir, 'src/App.jsx', appJsx({ designSystem }))
+  write(dir, 'src/App.jsx', appJsx({ designSystem, appearance }))
   write(dir, 'src/data/.gitkeep', '')
   write(dir, 'src/slides/CoverSlide.jsx',
     designSystem === 'shadcn'

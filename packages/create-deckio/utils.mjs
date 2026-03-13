@@ -1067,8 +1067,9 @@ export function ModeToggle() {
 `
 }
 
-export function appJsx({ designSystem = 'none' } = {}) {
+export function appJsx({ designSystem = 'none', appearance = 'dark' } = {}) {
   if (designSystem === 'shadcn') {
+    const defaultTheme = appearance === 'light' ? 'light' : 'dark'
     return `\
 import { useEffect } from 'react'
 import { Navigation, SlideProvider } from '@deckio/deck-engine'
@@ -1085,7 +1086,7 @@ export default function App() {
   }, [accent, title])
 
   return (
-    <ThemeProvider defaultTheme="light">
+    <ThemeProvider defaultTheme="${defaultTheme}">
       <SlideProvider totalSlides={slides.length} project={id} slides={slides} theme={theme}>
         <Navigation />
         <div className="deck" data-project-id={id}>

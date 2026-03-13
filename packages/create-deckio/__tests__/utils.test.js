@@ -538,10 +538,20 @@ describe('appJsx', () => {
     expect(code).not.toContain('ModeToggle')
   })
 
-  it('wraps with ThemeProvider when designSystem is shadcn', () => {
+  it('wraps with ThemeProvider when designSystem is shadcn (defaults to dark)', () => {
     const code = appJsx({ designSystem: 'shadcn' })
-    expect(code).toContain('<ThemeProvider defaultTheme="light">')
+    expect(code).toContain('<ThemeProvider defaultTheme="dark">')
     expect(code).toContain('</ThemeProvider>')
+  })
+
+  it('sets ThemeProvider defaultTheme to dark when appearance is dark', () => {
+    const code = appJsx({ designSystem: 'shadcn', appearance: 'dark' })
+    expect(code).toContain('<ThemeProvider defaultTheme="dark">')
+  })
+
+  it('sets ThemeProvider defaultTheme to light when appearance is light', () => {
+    const code = appJsx({ designSystem: 'shadcn', appearance: 'light' })
+    expect(code).toContain('<ThemeProvider defaultTheme="light">')
   })
 
   it('includes ModeToggle when designSystem is shadcn', () => {
@@ -574,6 +584,13 @@ describe('appJsx', () => {
     const withDefault = appJsx()
     const withNone = appJsx({ designSystem: 'none' })
     expect(withDefault).toBe(withNone)
+  })
+
+  it('appearance has no effect when designSystem is none', () => {
+    const dark = appJsx({ designSystem: 'none', appearance: 'dark' })
+    const light = appJsx({ designSystem: 'none', appearance: 'light' })
+    expect(dark).toBe(light)
+    expect(dark).not.toContain('ThemeProvider')
   })
 })
 
