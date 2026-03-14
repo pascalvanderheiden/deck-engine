@@ -19,7 +19,7 @@ Scaffolded shadcn decks ship with **real shadcn/ui v4 components** ready to impo
 
 | Component | Status | Import | Notes |
 |---|---|---|---|
-| **Button** | ✅ Preinstalled | `import { Button } from '@/components/ui/button'` | 6 variants, 7 sizes, `asChild` via Radix Slot |
+| **Button** | ✅ Preinstalled | `import { Button } from '@/components/ui/button'` | 6 variants, 8 sizes, `asChild` via Radix Slot |
 | **Card** | ✅ Preinstalled | `import { Card, CardHeader, CardTitle, CardDescription, CardAction, CardContent, CardFooter } from '@/components/ui/card'` | 7 sub-components, container queries |
 | **Badge** | ✅ Preinstalled | `import { Badge } from '@/components/ui/badge'` | 6 variants, Slot support |
 | **Separator** | ✅ Preinstalled | `import { Separator } from '@/components/ui/separator'` | Radix primitive, horizontal/vertical |

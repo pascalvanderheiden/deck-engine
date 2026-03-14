@@ -184,6 +184,8 @@ Separators create visual breaks between content sections:
 | `outline` | Subtle categorization, metadata tags |
 | `default` | Status indicators (use sparingly — high contrast) |
 | `destructive` | Warning/error status |
+| `ghost` | Rarely used in slides; available for custom overlays |
+| `link` | Rarely used in slides; available for badge links |
 
 ### Alert variants in slide context
 
