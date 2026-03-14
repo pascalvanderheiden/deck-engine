@@ -13,6 +13,12 @@ Read this file when `deck.config.js` has `designSystem: 'shadcn'`. It complement
 |-----------|--------|---------------|-------------|
 | `Button` | ✅ Preinstalled | Scaffolded automatically | `'@/components/ui/button'` |
 | `Card` | ✅ Preinstalled | Scaffolded automatically | `'@/components/ui/card'` |
+| `CardHeader` | ✅ Preinstalled | Scaffolded automatically | `'@/components/ui/card'` |
+| `CardTitle` | ✅ Preinstalled | Scaffolded automatically | `'@/components/ui/card'` |
+| `CardDescription` | ✅ Preinstalled | Scaffolded automatically | `'@/components/ui/card'` |
+| `CardAction` | ✅ Preinstalled | Scaffolded automatically | `'@/components/ui/card'` |
+| `CardContent` | ✅ Preinstalled | Scaffolded automatically | `'@/components/ui/card'` |
+| `CardFooter` | ✅ Preinstalled | Scaffolded automatically | `'@/components/ui/card'` |
 | `Badge` | ✅ Preinstalled | Scaffolded automatically | `'@/components/ui/badge'` |
 | `Separator` | ✅ Preinstalled | Scaffolded automatically | `'@/components/ui/separator'` |
 | `Alert` | ✅ Preinstalled | Scaffolded automatically | `'@/components/ui/alert'` |

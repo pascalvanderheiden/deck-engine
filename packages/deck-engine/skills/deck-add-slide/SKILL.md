@@ -63,7 +63,7 @@ These tell you which real components are preinstalled and ready to import:
 | Preinstalled | Import |
 |---|---|
 | `Button` | `'@/components/ui/button'` |
-| `Card`, `CardHeader`, `CardTitle`, `CardContent`, `CardDescription` | `'@/components/ui/card'` |
+| `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardAction`, `CardContent`, `CardFooter` | `'@/components/ui/card'` |
 | `Badge` | `'@/components/ui/badge'` |
 | `Separator` | `'@/components/ui/separator'` |
 | `Alert`, `AlertTitle`, `AlertDescription` | `'@/components/ui/alert'` |

@@ -26,7 +26,7 @@ Scaffolded shadcn decks ship with **real, working components** out of the box. T
 | Component | Import path | Source |
 |-----------|-------------|--------|
 | `Button` | `'@/components/ui/button'` | Pre-scaffolded from engine templates |
-| `Card`, `CardHeader`, `CardTitle`, `CardContent`, `CardDescription` | `'@/components/ui/card'` | Pre-scaffolded from engine templates |
+| `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardAction`, `CardContent`, `CardFooter` | `'@/components/ui/card'` | Pre-scaffolded from engine templates |
 | `Badge` | `'@/components/ui/badge'` | Pre-scaffolded from engine templates |
 | `Separator` | `'@/components/ui/separator'` | Pre-scaffolded from engine templates |
 | `Alert`, `AlertTitle`, `AlertDescription` | `'@/components/ui/alert'` | Pre-scaffolded from engine templates |
