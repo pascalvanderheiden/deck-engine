@@ -10,7 +10,7 @@ describe('create-deckio package', () => {
   it('has a valid package.json with bin entry', async () => {
     const pkg = (await import(join(pkgRoot, 'package.json'), { with: { type: 'json' } })).default
     expect(pkg.bin).toBeDefined()
-    expect(pkg.bin['create-deck-project']).toBe('index.mjs')
+    expect(pkg.bin['create-deckio']).toBe('index.mjs')
   })
 
   it('entry point file exists on disk', () => {

@@ -8,39 +8,41 @@
  *   footerText  – bottom bar text
  *
  * 🤖 Prompt tips:
- *   "Change the two options slide to compare Monolith vs Microservices"
- *   "Update option 1 items to list our product features"
- *   "Make the tags reflect our team values"
+ *   "In agent mode, turn this slide into Kubernetes vs Container Apps"
+ *   "Rewrite both option cards using our real trade-offs and presenter-friendly wording"
+ *   "Inspect this slide, tell me what looks off, and refine the comparison"
  */
 import Slide from '../components/Slide.jsx'
 import BottomBar from '../components/BottomBar.jsx'
+import { markSampleContent } from '../sampleContent.js'
 
-const defaultOptions = [
+const SAMPLE_OPTIONS = markSampleContent([
   {
     num: '01',
-    badge: 'Build',
-    title: 'Ship Real Solutions',
-    description: 'Teams work side-by-side to prototype, iterate, and ship working software.',
-    items: ['Working demos & prototypes', 'Prioritized backlog', 'Production-ready pilots'],
-    tags: ['🛠 Hands-on', '🎯 Focused', '📦 Tangible'],
+    badge: 'Option A',
+    title: 'Describe Option A To Copilot',
+    description: 'Use this card for your first real path, architecture, strategy, or trade-off, then let Copilot turn it into presenter-ready copy.',
+    items: ['Ask Copilot in agent mode to define Option A', 'Give it outcomes, risks, and constraints', 'Review the live slide and refine the wording'],
+    tags: ['🤖 Agent mode', '🅰️ Option A', '🔁 Refine live'],
   },
   {
     num: '02',
-    badge: 'Scale',
-    title: 'Ignite the Org',
-    description: 'A large-scale engagement to inspire and accelerate technology adoption across teams.',
-    items: ['Onboarding at scale', 'Platform adoption', 'Organizational momentum'],
-    tags: ['🎤 Keynotes', '🧪 Workshops', '🚀 Scale'],
+    badge: 'Option B',
+    title: 'Ask For The Contrast In Option B',
+    description: 'Use this card for the second path so Copilot can turn the slide into a real comparison instead of two isolated lists.',
+    items: ['Tell Copilot what changes in Option B', 'Ask it to sharpen the difference vs Option A', 'Delete the sample text once the slide is real'],
+    tags: ['🤖 Copilot draft', '🅱️ Option B', '🧪 Inspect result'],
   },
-]
+], { kind: 'comparison-options' })
 
 export default function GenericTwoOptionsSlide({
   index = 0,
-  eyebrow = 'Two paths',
+  eyebrow = 'Sample slide · build with Copilot',
   title,
-  options = defaultOptions,
+  options = SAMPLE_OPTIONS,
   footerText,
 }) {
+  const isSampleOptions = options?.__sample === true
   const [a, b] = options
   return (
     <Slide index={index} className="deck-two-options">
@@ -52,8 +54,13 @@ export default function GenericTwoOptionsSlide({
         <div className="deck-two-options-header">
           <p className="deck-two-options-eyebrow">{eyebrow}</p>
           <h1 className="deck-two-options-title">
-            {title || <>Two <span className="deck-two-options-highlight">Options</span></>}
+            {title || <>Ask Copilot To Build Your <span className="deck-two-options-highlight">Real Comparison</span></>}
           </h1>
+          {isSampleOptions && (
+            <p className="deck-two-options-sample-note">
+              Recommended flow: ask Copilot in agent mode to rewrite both cards with your real options, inspect the slide in the live preview, refine anything that feels off, then remove the sample text before using this deck as context.
+            </p>
+          )}
         </div>
 
         <div className="deck-two-options-columns">

@@ -117,6 +117,11 @@ export default {
   title: '${esc(title)}',
   subtitle: '${esc(subtitle)}',
   description: '${esc(subtitle)}',
+  meta: {
+    seededTemplate: true,
+    contentStatus: 'sample',
+    contextPolicy: 'ignore-sample-content-until-user-replaces-it',
+  },
   icon: '${esc(icon)}',
   accent: '${esc(accent)}',
   theme: '${esc(theme)}',${dsLine}${appearanceLine}${auroraBlock}
@@ -141,6 +146,11 @@ export default {
   title: '${esc(title)}',
   subtitle: '${esc(subtitle)}',
   description: '${esc(subtitle)}',
+  meta: {
+    seededTemplate: true,
+    contentStatus: 'sample',
+    contextPolicy: 'ignore-sample-content-until-user-replaces-it',
+  },
   icon: '${esc(icon)}',
   accent: '${esc(accent)}',
   theme: '${esc(theme)}',${dsLine}${appearanceLine}

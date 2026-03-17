@@ -16,8 +16,9 @@
  */
 import Slide from '../components/Slide.jsx'
 import BottomBar from '../components/BottomBar.jsx'
+import { markSampleContent } from '../sampleContent.js'
 
-const defaultGoals = [
+const SAMPLE_GOALS = markSampleContent([
   {
     title: 'Ship with Confidence',
     description: 'Every commit is tested, every deploy is automated. Move fast without breaking things.',
@@ -36,13 +37,13 @@ const defaultGoals = [
     icon: '🌍',
     accent: 'green',
   },
-]
+], { kind: 'goals' })
 
 export default function GenericGoalsSlide({
   index = 0,
   title = 'Three clear goals',
   subtitle = 'What success looks like for this initiative',
-  goals = defaultGoals,
+  goals = SAMPLE_GOALS,
   footerText,
 }) {
   return (

@@ -16,8 +16,9 @@
  */
 import Slide from '../components/Slide.jsx'
 import BottomBar from '../components/BottomBar.jsx'
+import { markSampleContent } from '../sampleContent.js'
 
-const defaultBlocks = [
+const SAMPLE_BLOCKS = markSampleContent([
   { time: '09:00', end: '09:15', label: 'Welcome & Introduction', icon: '🎙', color: 'accent' },
   { time: '09:15', end: '09:45', label: 'Opening Keynote', sub: 'Your amazing speaker here', icon: '🎤', color: 'blue' },
   { time: '09:45', end: '10:00', label: 'Break', icon: '☕', color: 'muted' },
@@ -31,14 +32,14 @@ const defaultBlocks = [
     ],
   },
   { time: '12:00', end: '13:00', label: 'Lunch & Networking', icon: '🍕', color: 'green' },
-]
+], { kind: 'agenda-blocks' })
 
 export default function GenericAgendaSlide({
   index = 0,
   eyebrow = 'Event agenda',
   title,
   description = 'Keynotes, hands-on breakouts, and time to connect.',
-  blocks = defaultBlocks,
+  blocks = SAMPLE_BLOCKS,
   footerText,
 }) {
   return (

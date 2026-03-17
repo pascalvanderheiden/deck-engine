@@ -15,19 +15,20 @@
 import Slide from '../components/Slide.jsx'
 import BottomBar from '../components/BottomBar.jsx'
 import { useSlides } from '../context/SlideContext.jsx'
+import { markSampleContent } from '../sampleContent.js'
 
-const defaultItems = [
+const SAMPLE_TOC_ITEMS = markSampleContent([
   { num: 1, title: 'The Problem', desc: 'What we are solving and why it matters to the business.', target: 2 },
   { num: 2, title: 'Our Approach', desc: 'The architecture, trade-offs, and key design decisions.', target: 3 },
   { num: 3, title: 'Demo', desc: 'A live walkthrough of the working prototype.', target: 4 },
   { num: 4, title: 'Roadmap', desc: 'What is shipping next and the timeline to GA.', target: 5 },
   { num: 5, title: 'Ask', desc: 'What we need from leadership to keep momentum.', target: 6 },
-]
+], { kind: 'toc-items' })
 
 export default function GenericTocSlide({
   index = 0,
   heading,
-  items = defaultItems,
+  items = SAMPLE_TOC_ITEMS,
   footerText,
 }) {
   const { goTo } = useSlides()

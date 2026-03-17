@@ -18,21 +18,22 @@ import { useState, useEffect } from 'react'
 import Slide from '../components/Slide.jsx'
 import BottomBar from '../components/BottomBar.jsx'
 import { useSlides } from '../context/SlideContext.jsx'
+import { markSampleContent } from '../sampleContent.js'
 
-const defaultSteps = [
+const SAMPLE_STEPS = markSampleContent([
   { num: '01', title: 'Define the Problem', desc: 'Identify the core challenge, constraints, and success criteria before writing a single line of code.', icon: '🎯' },
   { num: '02', title: 'Design the Approach', desc: 'Map the architecture, choose the right tools, and validate assumptions with the team.', icon: '🧠' },
   { num: '03', title: 'Build Iteratively', desc: 'Ship small increments, get feedback early, and let the code evolve with real-world usage.', icon: '🔨' },
   { num: '04', title: 'Test & Validate', desc: 'Automate the boring stuff. Integration tests, load tests, and chaos engineering — trust but verify.', icon: '🧪' },
   { num: '05', title: 'Ship & Observe', desc: 'Deploy with confidence. Monitor, alert, iterate. The best code is the code that runs in production.', icon: '🚀' },
-]
+], { kind: 'step-sequence' })
 
 export default function GenericStepsSlide({
   index = 0,
   eyebrow = 'The playbook',
   title = 'A Proven Framework',
   subtitle = 'Five steps to ship software that actually moves the needle.',
-  steps = defaultSteps,
+  steps = SAMPLE_STEPS,
   footerText,
 }) {
   const { current } = useSlides()

@@ -14,7 +14,7 @@ export default function GenericThankYouSlide({ index = 10, subtitle, tagline, fo
         <div key={i} className={`deck-ty-streak deck-ty-streak${i}`} />
       ))}
 
-      <div className="content-frame content-gutter">
+      <div className="deck-ty-shell content-frame content-gutter">
         <div className="deck-ty-content">
           <h2 className="deck-ty-title">Thank You</h2>
           <p className="deck-ty-subtitle">
@@ -22,6 +22,11 @@ export default function GenericThankYouSlide({ index = 10, subtitle, tagline, fo
           </p>
           <div className="deck-ty-divider" />
           {tagline && <p className="deck-ty-tagline">{tagline}</p>}
+        </div>
+
+        <div className="deck-ty-watermark" aria-hidden="true">
+          <img src="/deckio.png" alt="" className="deck-ty-watermark-icon" />
+          <span className="deck-ty-watermark-text">DECKIO</span>
         </div>
       </div>
 

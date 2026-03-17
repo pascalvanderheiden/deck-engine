@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { existsSync, readFileSync, statSync } from 'fs'
-import { dirname, join } from 'path'
+import { dirname, join, isAbsolute } from 'path'
 import { fileURLToPath } from 'url'
 import { resolveTheme, getAvailableThemes, DEFAULT_THEME, BUILTIN_THEMES } from '../themes/theme-loader.js'
 
@@ -61,14 +61,15 @@ describe('theme-loader', () => {
 
     it('treats .css extension as custom path', () => {
       const path = resolveTheme('/custom/my-theme.css')
-      expect(path).toBe('/custom/my-theme.css')
+      expect(path).toContain('custom')
+      expect(path).toContain('my-theme.css')
+      expect(isAbsolute(path)).toBe(true)
     })
 
     it('resolves relative .css path from cwd', () => {
       const path = resolveTheme('./my-local-theme.css')
       expect(path).toContain('my-local-theme.css')
-      // Should be absolute after resolve()
-      expect(path).toMatch(/^\//)
+      expect(isAbsolute(path)).toBe(true)
     })
   })
 

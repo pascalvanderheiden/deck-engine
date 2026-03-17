@@ -104,10 +104,24 @@ const INDEX_HTML = `\
 </html>
 `
 
+const SAMPLE_CONTENT_INSTRUCTIONS = `\
+# Sample Content Policy
+
+- Treat scaffolded deck copy and built-in generic slide defaults as placeholder content only.
+- Do not use sample slide text as factual project context, requirements, goals, roadmap, or customer data.
+- Only treat deck content as real context after the user has replaced the placeholders.
+- Check \\`deck.config.js\\`, generated slide comments, and any \\`__sample\\` markers before using slide content as context.
+`
+
 function coverSlideJsx(title, subtitle, slug) {
   const highlight = title.split(' ').pop()
   const before = title.split(' ').slice(0, -1).join(' ')
   return `\
+/**
+ * SAMPLE CONTENT ONLY
+ * This slide contains scaffolded placeholder copy.
+ * Agents must not use it as factual project context until the user replaces it.
+ */
 import { BottomBar, Slide } from '@deckio/deck-engine'
 import styles from './CoverSlide.module.css'
 
@@ -141,6 +155,11 @@ export default function CoverSlide() {
             </div>
           </div>
         </div>
+
+        <div className={styles.watermark} aria-hidden="true">
+          <img src="/deckio.png" alt="" className={styles.watermarkIcon} />
+          <span className={styles.watermarkText}>DECKIO</span>
+        </div>
       </div>
 
       <BottomBar text="${slug}" />
@@ -154,6 +173,13 @@ const COVER_SLIDE_CSS = `\
 .cover {
   background: var(--background);
   padding: 0 0 44px 0;
+}
+
+.cover :global(.content-frame) {
+  position: relative;
+  min-height: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .orb1 {
@@ -176,6 +202,37 @@ const COVER_SLIDE_CSS = `\
   position: relative;
   z-index: 10;
   max-width: 700px;
+}
+
+.watermark {
+  position: absolute;
+  right: 72px;
+  bottom: 78px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.26;
+}
+
+.watermarkIcon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  opacity: 0.78;
+}
+
+.watermarkText {
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #ec4899, #f472b6, #c084fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  opacity: 0.72;
 }
 
 .eyebrow {
@@ -674,6 +731,7 @@ async function main() {
       ? COVER_SLIDE_CSS_SHADCN
       : COVER_SLIDE_CSS)
   write(dir, 'deck.config.js', deckConfig(slug, title, subtitle, icon, accent, theme, designSystem, aurora, appearance))
+  write(dir, '.github/instructions/sample-content.instructions.md', SAMPLE_CONTENT_INSTRUCTIONS)
 
   // shadcn ThankYouSlide is a local file (editorial style); default uses engine's GenericThankYouSlide
   if (designSystem === 'shadcn') {

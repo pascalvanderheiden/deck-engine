@@ -16,25 +16,26 @@
  */
 import Slide from '../components/Slide.jsx'
 import BottomBar from '../components/BottomBar.jsx'
+import { markSampleContent } from '../sampleContent.js'
 
-const defaultKpis = [
+const SAMPLE_KPIS = markSampleContent([
   { number: '10x', label: 'Faster Deploys' },
   { number: '99.9%', label: 'Uptime SLA' },
   { number: '500+', label: 'Engineers' },
-]
+], { kind: 'objective-kpis' })
 
-const defaultCards = [
+const SAMPLE_CARDS = markSampleContent([
   { icon: '🚀', title: 'Ship Faster', description: 'Automate the pipeline from commit to production. Less ceremony, more shipping.' },
   { icon: '🏗️', title: 'Build to Last', description: 'Architecture decisions that scale. Design for the traffic you want, not the traffic you have.' },
   { icon: '🤝', title: 'Grow the Team', description: 'Invest in people. Pair programming, code reviews, and a culture where everyone levels up.' },
-]
+], { kind: 'objective-cards' })
 
 export default function GenericObjectiveSlide({
   index = 0,
   label = 'Our Objective',
   heading = 'Build the platform developers actually want to use',
-  kpis = defaultKpis,
-  cards = defaultCards,
+  kpis = SAMPLE_KPIS,
+  cards = SAMPLE_CARDS,
   banner,
   footerText,
 }) {
