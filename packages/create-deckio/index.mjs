@@ -8,10 +8,15 @@
  */
 import { mkdirSync, writeFileSync, copyFileSync, existsSync, readdirSync } from 'fs'
 import { join, resolve, dirname } from 'path'
-import { exec } from 'child_process'
+import { exec, execSync } from 'child_process'
 import { promisify } from 'util'
 import { fileURLToPath } from 'url'
 import * as clack from '@clack/prompts'
+
+// Enable UTF-8 on Windows so @clack/prompts icons render correctly
+if (process.platform === 'win32') {
+  try { execSync('chcp 65001', { stdio: 'ignore' }) } catch {}
+}
 import { slugify, packageJson, deckConfig, indexCss, mainJsx, resolveEngineRef, viteConfig, componentsJson, cnUtility, jsConfig, COLOR_PRESETS, AURORA_PALETTES, auroraAccent, coverSlideJsxShadcn, COVER_SLIDE_CSS_SHADCN, featuresSlideJsxShadcn, FEATURES_SLIDE_CSS_SHADCN, gettingStartedSlideJsxShadcn, GETTING_STARTED_SLIDE_CSS_SHADCN, thankYouSlideJsxShadcn, THANK_YOU_SLIDE_CSS_SHADCN, themeProviderJsx, appJsx, vscodeMcpConfig, mcpGuide } from './utils.mjs'
 
 const execAsync = promisify(exec)
