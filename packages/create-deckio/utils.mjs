@@ -10,11 +10,24 @@ import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
+function readBundledEngineRef() {
+  const scaffolderPkgPath = join(__dirname, 'package.json')
+
+  try {
+    if (!existsSync(scaffolderPkgPath)) return null
+    const scaffolderPkg = JSON.parse(readFileSync(scaffolderPkgPath, 'utf-8'))
+    const engineVersion = scaffolderPkg.deckio?.engineVersion
+    return typeof engineVersion === 'string' && engineVersion ? engineVersion : null
+  } catch {
+    return null
+  }
+}
+
 /**
  * Resolve the @deckio/deck-engine dependency reference for generated projects.
  *
  * Local dev (monorepo):  file: protocol pointing to the engine package
- * npm-installed:         ^version from the engine's package.json
+ * npm-installed:         bundled semver range from create-deckio package.json
  */
 export function resolveEngineRef(projectDir) {
   const enginePkgPath = join(__dirname, '..', 'deck-engine', 'package.json')
@@ -33,8 +46,25 @@ export function resolveEngineRef(projectDir) {
     }
   } catch { /* fall through to fallback */ }
 
-  // Fallback: latest known published version (npm-installed scaffolder)
-  return 'latest'
+  // Fallback: bundled published engine version from create-deckio metadata.
+  return readBundledEngineRef() || 'latest'
+}
+
+export function resolveEngineVersionLabel(projectDir) {
+  const enginePkgPath = join(__dirname, '..', 'deck-engine', 'package.json')
+
+  try {
+    if (existsSync(enginePkgPath)) {
+      const enginePkg = JSON.parse(readFileSync(enginePkgPath, 'utf-8'))
+      if (enginePkg.name === '@deckio/deck-engine') {
+        return `v${enginePkg.version} (local workspace)`
+      }
+    }
+  } catch { /* fall through to reference parsing */ }
+
+  const ref = resolveEngineRef(projectDir)
+  if (ref === 'latest') return 'latest'
+  return `v${ref.replace(/^[~^]/, '')}`
 }
 
 export function slugify(text) {

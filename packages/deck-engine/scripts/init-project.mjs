@@ -48,6 +48,7 @@ function copySkills() {
   }
 
   const destSkills = join(projectRoot, '.github', 'skills')
+  const disabledSkills = new Set(['deck-generate-image'])
   let count = 0
 
   // Collect engine skill names to detect stale skills
@@ -56,6 +57,7 @@ function copySkills() {
     if (!entry.isDirectory()) continue
     const skillFile = join(srcSkills, entry.name, 'SKILL.md')
     if (!existsSync(skillFile)) continue
+    if (disabledSkills.has(entry.name)) continue
     engineSkillNames.add(entry.name)
 
     const destDir = join(destSkills, entry.name)

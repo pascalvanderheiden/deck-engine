@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { slugify, packageJson, deckConfig, indexCss, mainJsx, resolveEngineRef, viteConfig, componentsJson, cnUtility, jsConfig, COLOR_PRESETS, AURORA_PALETTES, AURORA_ACCENT_MAP, auroraAccent, themeProviderJsx, appJsx, coverSlideJsxShadcn, COVER_SLIDE_CSS_SHADCN, featuresSlideJsxShadcn, FEATURES_SLIDE_CSS_SHADCN, gettingStartedSlideJsxShadcn, GETTING_STARTED_SLIDE_CSS_SHADCN, thankYouSlideJsxShadcn, THANK_YOU_SLIDE_CSS_SHADCN, vscodeMcpConfig } from '../utils.mjs'
+import { slugify, packageJson, deckConfig, indexCss, mainJsx, resolveEngineRef, resolveEngineVersionLabel, viteConfig, componentsJson, cnUtility, jsConfig, COLOR_PRESETS, AURORA_PALETTES, AURORA_ACCENT_MAP, auroraAccent, themeProviderJsx, appJsx, coverSlideJsxShadcn, COVER_SLIDE_CSS_SHADCN, featuresSlideJsxShadcn, FEATURES_SLIDE_CSS_SHADCN, gettingStartedSlideJsxShadcn, GETTING_STARTED_SLIDE_CSS_SHADCN, thankYouSlideJsxShadcn, THANK_YOU_SLIDE_CSS_SHADCN, vscodeMcpConfig } from '../utils.mjs'
 
 describe('slugify', () => {
   it('lowercases and hyphenates spaces', () => {
@@ -242,6 +242,16 @@ describe('resolveEngineRef', () => {
     const utilsDir = dirname(fileURLToPath(import.meta.url))
     const enginePkg = JSON.parse(readFileSync(join(utilsDir, '..', '..', 'deck-engine', 'package.json'), 'utf-8'))
     expect(ref).toBe(`^${enginePkg.version}`)
+  })
+
+  it('display label shows the local engine version', async () => {
+    const label = resolveEngineVersionLabel()
+    const { readFileSync } = await import('fs')
+    const { join, dirname } = await import('path')
+    const { fileURLToPath } = await import('url')
+    const utilsDir = dirname(fileURLToPath(import.meta.url))
+    const enginePkg = JSON.parse(readFileSync(join(utilsDir, '..', '..', 'deck-engine', 'package.json'), 'utf-8'))
+    expect(label).toBe(`v${enginePkg.version} (local workspace)`)
   })
 
   it('packageJson uses resolveEngineRef by default', () => {

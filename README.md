@@ -49,9 +49,9 @@ Useful skills:
 - `deck-add-slide` for creating a new slide and wiring it into `deck.config.js`
 - `deck-delete-slide` for removing a slide cleanly
 - `deck-inspect` for visually checking a rendered slide
+- `deck-port-powerpoint` for rebuilding a PowerPoint or PDF deck as native DECKIO slides
 - `deck-validate-project` for auditing the whole deck for consistency
 - `deck-sketch` for turning a rough whiteboard idea into a real slide
-- `deck-generate-image` for generating artwork or icons used in slides
 
 ## Prompt examples
 

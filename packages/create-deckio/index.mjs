@@ -17,7 +17,7 @@ import * as clack from '@clack/prompts'
 if (process.platform === 'win32') {
   try { execSync('chcp 65001', { stdio: 'ignore' }) } catch {}
 }
-import { slugify, packageJson, deckConfig, indexCss, mainJsx, resolveEngineRef, viteConfig, componentsJson, cnUtility, jsConfig, COLOR_PRESETS, AURORA_PALETTES, auroraAccent, coverSlideJsxShadcn, COVER_SLIDE_CSS_SHADCN, featuresSlideJsxShadcn, FEATURES_SLIDE_CSS_SHADCN, gettingStartedSlideJsxShadcn, GETTING_STARTED_SLIDE_CSS_SHADCN, thankYouSlideJsxShadcn, THANK_YOU_SLIDE_CSS_SHADCN, themeProviderJsx, appJsx, vscodeMcpConfig, mcpGuide } from './utils.mjs'
+import { slugify, packageJson, deckConfig, indexCss, mainJsx, resolveEngineRef, resolveEngineVersionLabel, viteConfig, componentsJson, cnUtility, jsConfig, COLOR_PRESETS, AURORA_PALETTES, auroraAccent, coverSlideJsxShadcn, COVER_SLIDE_CSS_SHADCN, featuresSlideJsxShadcn, FEATURES_SLIDE_CSS_SHADCN, gettingStartedSlideJsxShadcn, GETTING_STARTED_SLIDE_CSS_SHADCN, thankYouSlideJsxShadcn, THANK_YOU_SLIDE_CSS_SHADCN, themeProviderJsx, appJsx, vscodeMcpConfig, mcpGuide } from './utils.mjs'
 
 const execAsync = promisify(exec)
 
@@ -41,12 +41,14 @@ function resolveEngineRoot() {
 function copyEngineAssets(dir) {
   const engineRoot = resolveEngineRoot()
   if (!engineRoot) return
+  const disabledSkills = new Set(['deck-generate-image'])
 
   // Skills
   const srcSkills = join(engineRoot, 'skills')
   if (existsSync(srcSkills)) {
     for (const entry of readdirSync(srcSkills, { withFileTypes: true })) {
       if (!entry.isDirectory()) continue
+      if (disabledSkills.has(entry.name)) continue
       const skillFile = join(srcSkills, entry.name, 'SKILL.md')
       if (!existsSync(skillFile)) continue
       const destDir = join(dir, '.github', 'skills', entry.name)
@@ -487,9 +489,9 @@ Useful skills:
 - \`deck-add-slide\` for creating a new slide and wiring it into \`deck.config.js\`
 - \`deck-delete-slide\` for removing a slide cleanly
 - \`deck-inspect\` for visually checking a rendered slide
+- \`deck-port-powerpoint\` for rebuilding a PowerPoint or PDF deck as native DECKIO slides
 - \`deck-validate-project\` for auditing the whole deck for consistency
 - \`deck-sketch\` for turning a rough whiteboard idea into a real slide
-- \`deck-generate-image\` for generating artwork or icons used in slides
 
 ## Prompt examples
 
@@ -557,9 +559,11 @@ async function main() {
   const isInteractive = process.stdin.isTTY
 
   let title, subtitle, accent, icon, theme, appearance, designSystem = 'none', aurora = null
+  const engineVersionLabel = resolveEngineVersionLabel(dir)
 
   if (isInteractive) {
     clack.intro('✦ DECKIO — new deck')
+    clack.note(`Using @deckio/deck-engine ${engineVersionLabel}`, 'Runtime')
 
     title = await clack.text({
       message: 'Title',
@@ -708,6 +712,7 @@ async function main() {
       accent = process.env.DECK_ACCENT || '#6366f1'
     }
 
+    clack.log.info(`Using @deckio/deck-engine ${engineVersionLabel}`)
     clack.log.info('Using defaults (non-interactive mode)')
   }
 
