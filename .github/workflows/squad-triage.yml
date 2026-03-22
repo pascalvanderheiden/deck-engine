@@ -148,13 +148,62 @@ jobs:
             const isWellFormed = hasFormProduct && hasDescription;
 
             if (isWellFormed) {
-              // Well-formed → auto-approve, assign doer directly (Copilot picks it up)
+              // Well-formed → auto-approve, assign doer directly, assign Copilot
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
                 labels: [poLabel, doerLabel, `product:${detectedProduct}`, 'go:yes']
               });
+
+              // Read doer charter for Copilot custom instructions
+              const charterPath = `.squad/agents/${normalize(doer)}/charter.md`;
+              let charterContent = '';
+              if (fs.existsSync(charterPath)) {
+                charterContent = fs.readFileSync(charterPath, 'utf8');
+              }
+
+              const customInstructions = [
+                `You are ${doer}, a member of the Deck Squad.`,
+                `Follow your charter strictly.`,
+                '',
+                '## Your Charter',
+                charterContent,
+                '',
+                '## Rules',
+                '- Write tests for every change',
+                '- Match existing code conventions',
+                '- Stay within your product scope',
+                '- Read .squad/team.md, .squad/routing.md, .squad/decisions.md for context',
+              ].join('\n');
+
+              // Assign Copilot coding agent
+              const { data: repoData } = await github.rest.repos.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              });
+
+              let copilotAssigned = false;
+              try {
+                await github.request('POST /repos/{owner}/{repo}/issues/{issue_number}/assignees', {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  assignees: ['copilot-swe-agent[bot]'],
+                  agent_assignment: {
+                    target_repo: `${context.repo.owner}/${context.repo.repo}`,
+                    base_branch: repoData.default_branch,
+                    custom_instructions: customInstructions,
+                  },
+                });
+                copilotAssigned = true;
+              } catch (err) {
+                core.warning(`Could not assign Copilot: ${err.message}`);
+              }
+
+              const copilotNote = copilotAssigned
+                ? `Copilot coding agent assigned as ${doer} — will create a branch and open a PR.`
+                : `⚠️ Could not assign Copilot (${copilotAssigned ? '' : 'enable Coding Agent in repo settings'}). Assign manually.`;
 
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
@@ -166,12 +215,12 @@ jobs:
                   `**Product:** ${detectedProduct}`,
                   `**PO:** ${po} · **Doer:** ${doer}`,
                   '',
-                  `Issue is well-formed — auto-approved and assigned to ${doer}.`,
-                  `${po} can override by removing \`go:yes\` if the direction needs adjustment.`,
+                  copilotNote,
+                  `${po} reviews the PR and merges.`,
                 ].join('\n')
               });
 
-              core.info(`Auto-approved #${issue.number} → ${doer} (${detectedProduct})`);
+              core.info(`Auto-approved #${issue.number} → ${doer} (copilot: ${copilotAssigned})`);
             } else {
               // Needs PO review — assign PO only
               await github.rest.issues.addLabels({
