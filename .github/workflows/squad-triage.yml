@@ -2,11 +2,13 @@ name: Squad Triage
 
 on:
   issues:
-    types: [labeled]
+    types: [opened, labeled]
 
 jobs:
   triage:
-    if: github.event.label.name == 'squad'
+    if: >-
+      (github.event.action == 'opened') ||
+      (github.event.action == 'labeled' && github.event.label.name == 'squad')
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -14,23 +16,40 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Triage issue to product PO
+      - name: Triage issue
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
             const issue = context.payload.issue;
+            const labels = issue.labels.map(l => l.name);
             const issueText = `${issue.title}\n${issue.body || ''}`.toLowerCase();
 
-            // Product → PO mapping (matches .squad/team.md)
-            const PRODUCT_PO = {
-              'deck-engine':    { po: 'Messi',   doer: 'De Paul' },
-              'deck-launcher':  { po: 'Julian',  doer: 'De Paul' },
-              'deck-saas-core': { po: 'Enzo',    doer: 'Lautaro' },
-              'deck-gateway':   { po: 'Cuti',    doer: 'Licha' },
+            // Skip if already triaged (has a squad:* agent label)
+            const hasAgentLabel = labels.some(l => l.startsWith('squad:') && l !== 'squad');
+            if (hasAgentLabel) {
+              core.info('Already triaged — skipping');
+              return;
+            }
+
+            // Auto-apply squad label if missing (board-created issues)
+            if (!labels.includes('squad')) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: ['squad']
+              });
+            }
+
+            // Product → PO + doer + repo mapping
+            const PRODUCT_MAP = {
+              'deck-engine':    { po: 'Messi',   doer: 'De Paul', repo: 'deck-engine' },
+              'deck-launcher':  { po: 'Julian',  doer: 'De Paul', repo: 'deck-launcher' },
+              'deck-saas-core': { po: 'Enzo',    doer: 'Lautaro', repo: 'deck-saas-core' },
+              'deck-gateway':   { po: 'Cuti',    doer: 'Licha',   repo: 'deck-saas-core' },
             };
 
-            // Keyword → product detection
             const PRODUCT_KEYWORDS = {
               'deck-engine':    ['slide', 'theme', 'component', 'scaffolder', 'create-deckio', 'vitest', 'deck-engine', 'jsx', 'vite plugin'],
               'deck-launcher':  ['launcher', 'project picker', 'workspace', 'preview', 'copilot sdk', 'server-plugin', 'deck-launcher', 'import'],
@@ -38,11 +57,9 @@ jobs:
               'deck-gateway':   ['gateway', 'oauth', 'auth', 'session', 'login', 'handoff', 'proxy', 'namespace provisioning', 'caddy', 'tls'],
             };
 
-            // Detect product from issue body (form dropdown or keywords)
+            // Detect product from form dropdown first
             let detectedProduct = null;
-
-            // Check form dropdown value first
-            for (const product of Object.keys(PRODUCT_PO)) {
+            for (const product of Object.keys(PRODUCT_MAP)) {
               if (issueText.includes(`### product\n\n${product}`) || issueText.includes(`product: ${product}`)) {
                 detectedProduct = product;
                 break;
@@ -61,12 +78,102 @@ jobs:
               }
             }
 
+            if (!detectedProduct) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `### ⚽ Squad Triage\n\nCould not detect the target product. Add a \`product:*\` label manually.`
+              });
+              return;
+            }
+
+            const { po, doer, repo: correctRepo } = PRODUCT_MAP[detectedProduct];
             const normalize = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const currentRepo = context.repo.repo;
+            const isWrongRepo = correctRepo !== currentRepo;
 
-            if (detectedProduct) {
-              const { po, doer } = PRODUCT_PO[detectedProduct];
-              const poLabel = `squad:${normalize(po)}`;
+            // --- WRONG REPO: Transfer the issue ---
+            if (isWrongRepo) {
+              try {
+                await github.graphql(`
+                  mutation($issueId: ID!, $repoId: ID!) {
+                    transferIssue(input: { issueId: $issueId, repositoryId: $repoId }) {
+                      issue { number url }
+                    }
+                  }
+                `, {
+                  issueId: issue.node_id,
+                  repoId: (await github.rest.repos.get({
+                    owner: context.repo.owner,
+                    repo: correctRepo
+                  })).data.node_id
+                });
 
+                core.info(`Transferred #${issue.number} to ${correctRepo}`);
+                // The transferred issue will re-trigger triage in the correct repo
+                return;
+              } catch (err) {
+                // Transfer failed — triage in place with a warning
+                core.warning(`Could not transfer: ${err.message}`);
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: [
+                    `### ⚽ Squad Triage`,
+                    '',
+                    `⚠️ **Wrong repo** — this issue is for **${detectedProduct}** but was filed in **${currentRepo}**.`,
+                    `Transfer failed: ${err.message}`,
+                    `Please move it manually to \`deckio-art/${correctRepo}\`.`,
+                  ].join('\n')
+                });
+                return;
+              }
+            }
+
+            // --- CORRECT REPO: Triage normally ---
+            const doerLabel = `squad:${normalize(doer)}`;
+            const poLabel = `squad:${normalize(po)}`;
+
+            // Check if issue is well-formed enough to skip PO review
+            // Well-formed = has product dropdown filled + has description + has acceptance criteria
+            const hasDescription = issue.body && issue.body.includes('### Description') &&
+              !issue.body.includes('### Description\n\n_No response_') &&
+              issue.body.split('### Description')[1]?.trim().length > 20;
+            const hasAcceptance = issue.body && issue.body.includes('### Acceptance Criteria') &&
+              !issue.body.includes('### Acceptance Criteria\n\n_No response_') &&
+              issue.body.split('### Acceptance Criteria')[1]?.trim().length > 10;
+            const hasFormProduct = issue.body && issue.body.includes('### Product\n\n');
+            const isWellFormed = hasFormProduct && hasDescription;
+
+            if (isWellFormed) {
+              // Well-formed → auto-approve, assign doer directly (Copilot picks it up)
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: [poLabel, doerLabel, `product:${detectedProduct}`, 'go:yes']
+              });
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: [
+                  `### ⚽ Squad Triage → Auto-approved`,
+                  '',
+                  `**Product:** ${detectedProduct}`,
+                  `**PO:** ${po} · **Doer:** ${doer}`,
+                  '',
+                  `Issue is well-formed — auto-approved and assigned to ${doer}.`,
+                  `${po} can override by removing \`go:yes\` if the direction needs adjustment.`,
+                ].join('\n')
+              });
+
+              core.info(`Auto-approved #${issue.number} → ${doer} (${detectedProduct})`);
+            } else {
+              // Needs PO review — assign PO only
               await github.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -85,35 +192,11 @@ jobs:
                   `**Assigned to:** ${po} (Product Owner)`,
                   `**Doer:** ${doer}`,
                   '',
-                  `${po} will review, define acceptance criteria, and decide go/no-go.`,
-                  `When ready, ${po} applies \`go:yes\` and assigns to ${doer} via \`squad:${normalize(doer)}\`.`,
-                  '',
-                  '---',
-                  '',
-                  '**Squad members:**',
-                  ...Object.entries(PRODUCT_PO).map(([prod, { po: p, doer: d }]) =>
-                    `- **${p}** (PO ${prod}) · **${d}** (doer) → \`squad:${normalize(p)}\` / \`squad:${normalize(d)}\``
-                  ),
-                  `- **Licha** (Security) → \`squad:licha\``,
-                  '',
-                  '> To reassign: remove the current `squad:*` label and add the correct one.',
+                  `Needs PO review — missing description or acceptance criteria.`,
+                  `${po}: apply \`go:yes\` + \`squad:${normalize(doer)}\` when ready.`,
                 ].join('\n')
               });
 
-              core.info(`Triaged #${issue.number} → ${po} (${detectedProduct})`);
-            } else {
-              // No product detected — leave for manual triage
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issue.number,
-                body: [
-                  `### ⚽ Squad Triage`,
-                  '',
-                  `Could not auto-detect the target product.`,
-                  `A PO should add the appropriate \`product:*\` and \`squad:*\` labels.`,
-                ].join('\n')
-              });
-
-              core.info(`Could not auto-triage #${issue.number} — needs manual assignment`);
+              core.info(`Triaged #${issue.number} → ${po} for review (${detectedProduct})`);
             }
+
