@@ -137,6 +137,24 @@ export function SlideProvider({ children, totalSlides, project, slides, theme })
     return () => document.removeEventListener('keydown', handler)
   }, [go])
 
+  /*  📨 ──────────────────────────────────────────
+   *  │  postMessage listener for deck:goTo        │
+   *  │  Allows parent (launcher) to navigate      │
+   *  ────────────────────────────────────── 📨   */
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.data?.type === 'deck:goTo' && e.data.project === project) {
+        const idx = e.data.slideIndex
+        if (typeof idx === 'number' && idx >= 0 && idx < totalSlides) {
+          setCurrent(idx)
+        }
+      }
+    }
+    window.addEventListener('message', handler)
+    return () => window.removeEventListener('message', handler)
+  }, [project, totalSlides])
+
   /*  👆 ─────────────────────────────────
    *  │  Touch / swipe  (threshold 50px) │
    *  ───────────────────────────── 👆   */
