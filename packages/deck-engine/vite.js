@@ -33,8 +33,20 @@ export function deckPlugin(options = {}) {
         resolve: {
           dedupe: ['react', 'react-dom'],
         },
-        // Tailwind CSS v4 is added via the companion tailwindPlugin()
       }
+    },
+    // Vite 8's @vitejs/plugin-react loads /@react-refresh as a module import.
+    // If that module fails to load (e.g. behind a reverse proxy with auth),
+    // $RefreshSig$ is undefined and every component crashes.
+    // Inject synchronous fallbacks so components always render.
+    // When /@react-refresh loads successfully, it overwrites these with the
+    // real HMR implementations.
+    transformIndexHtml() {
+      return [{
+        tag: 'script',
+        children: 'window.$RefreshReg$=window.$RefreshReg$||function(){};window.$RefreshSig$=window.$RefreshSig$||function(){return function(t){return t}};',
+        injectTo: 'head-prepend',
+      }]
     },
   }
 }
